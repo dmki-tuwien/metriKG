@@ -19,3 +19,9 @@ It was developed as part of a Bachelor's thesis at **TU Wien (Vienna University 
    ```bash
    git clone https://github.com/dmki-tuwien/metriKG.git
    cd metriKG
+
+2. Recommended: Create and activate a virtual environment
+    ```bash
+    python -m venv venv
+    source venv/bin/activate     # Linux / macOS
+    venv\\Scripts\\activate        # Windows PowerShell
