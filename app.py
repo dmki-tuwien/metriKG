@@ -132,7 +132,6 @@ def update_results_df(part_df: pd.DataFrame, source_label: str, source_value: st
 
     st.session_state.results_df = base.reset_index()
 
-#def ensure_kernel(kernel_name="hasi-ba-venv", display=None):
 def ensure_kernel(kernel_name="metrikg-venv", display=None):
     """
     Ensures that the specified Jupyter kernel is available. If not, it registers it.
@@ -147,7 +146,7 @@ def ensure_kernel(kernel_name="metrikg-venv", display=None):
                                "--name", kernel_name, "--display-name", display])
     return kernel_name
 
-# Ensure that the kernel "hasi-ba-venv" is available
+# Ensure that the kernel "metrikg-venv" is available
 KERNEL = ensure_kernel() 
 
 # Streamlit page configuration
@@ -490,7 +489,6 @@ def run_nb(nb_path: Path, params: dict):
             output_path=str(executed_nb),
             parameters=params,
             cwd=str(BASE), # working directory
-            #kernel_name="hasi-ba-venv",
             kernel_name="metrikg-venv",
             progress_bar=True,
         )
