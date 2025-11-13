@@ -1,16 +1,10 @@
-# metrics_loader.py
+"""
+Utility module responsible for loading and accessing RDF data.
+"""
+
 from rdflib import Graph
 from pathlib import Path
 from SPARQLWrapper import SPARQLWrapper, JSON
-
-"""EXT2FMT = {
-    ".ttl": "turtle",
-    ".rdf": "xml",
-    ".owl": "xml",
-    ".nt": "nt",
-    ".n3": "n3",
-    ".jsonld": "json-ld",
-}"""
 
 def load_graph_from_file(file_or_path) -> Graph:
     """

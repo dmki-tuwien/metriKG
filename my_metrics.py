@@ -1,4 +1,10 @@
-# my_metrics.py
+"""
+Contains the actual implementations of metric computations for RDF graphs.
+Each function calculates one or more Knowledge Graph metrics (e.g., Depth, Degree Variance, Cohesion).
+Used by the Jupyter notebooks to compute metric values and export them as CSV tables.
+"""
+
+
 import pandas as pd
 from rdflib import Graph, Literal, URIRef, BNode, RDF, OWL, RDFS
 from SPARQLWrapper import SPARQLWrapper, JSON

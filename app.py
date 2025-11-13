@@ -1,3 +1,14 @@
+"""
+Main entry point of the Streamlit web application.
+
+Handles the entire user interface for:
+- Uploading RDF files or connecting to SPARQL endpoints
+- Selecting metrics and executing the metric computation notebooks
+- Displaying results in a structured table
+
+Internally manages session state, notebook execution via Papermill, and dynamic UI updates.
+"""
+
 import streamlit as st
 import pandas as pd
 import papermill as pm
