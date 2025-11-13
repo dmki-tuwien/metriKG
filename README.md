@@ -1,6 +1,6 @@
 # MetriKG
 
-**MetriKG** is a web-based tool for calculating structural metrics on RDF-based Knowledge Graphs.  
+**MetriKG** is a web-based tool for calculating structural and semantic metrics on RDF-based Knowledge Graphs.  
 It was developed as part of a Bachelor's thesis at **TU Wien (Vienna University of Technology)**.
 
 ---
@@ -16,7 +16,7 @@ It was developed as part of a Bachelor's thesis at **TU Wien (Vienna University 
 ## Installation
 
 1. **Clone or download the repository**
-   ```bash
+   ```
    git clone https://github.com/dmki-tuwien/metriKG.git
    cd metriKG
    ```
@@ -37,9 +37,8 @@ It was developed as part of a Bachelor's thesis at **TU Wien (Vienna University 
 
 Start the web interface using Streamlit:
 
-    ```bash
     streamlit run app.py
-    ```
+
 
 By default, the tool will be accessible at: [http://localhost:8501](http://localhost:8501)
 
