@@ -27,14 +27,14 @@ It was developed as part of a Bachelor's thesis at **TU Wien (Vienna University 
 
     ```bash
     python -m venv venv
-    venv\Scripts\activate        # Windows PowerShell
+    venv\Scripts\activate   
     ```
 
     - Linux / macOS:
     
     ```bash
     python -m venv venv
-    source venv/bin/activate     # Linux / macOS
+    source venv/bin/activate    
     ```
 
 3. **Install all required packages**
