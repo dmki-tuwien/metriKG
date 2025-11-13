@@ -5,8 +5,6 @@ import scrapbook as sb
 import tempfile, os
 from pathlib import Path
 from datetime import datetime
-#import io
-#import time
 import sys, subprocess
 import jupyter_client
 from urllib.parse import urlparse, urlsplit
