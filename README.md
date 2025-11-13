@@ -22,10 +22,19 @@ It was developed as part of a Bachelor's thesis at **TU Wien (Vienna University 
    ```
 
 2. **Recommended: Create and activate a virtual environment**
+    
+    - Windows:
+
+    ```bash
+    python -m venv venv
+    venv\Scripts\activate        # Windows PowerShell
+    ```
+
+    - Linux / macOS:
+    
     ```bash
     python -m venv venv
     source venv/bin/activate     # Linux / macOS
-    venv\Scripts\activate        # Windows PowerShell
     ```
 
 3. **Install all required packages**
