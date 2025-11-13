@@ -18,4 +18,4 @@ It was developed as part of a Bachelor's thesis at **TU Wien (Vienna University 
 1. **Clone or download the repository**
    ```bash
    git clone https://github.com/dmki-tuwien/metriKG.git
-   cd metriKG```
+   cd metriKG
