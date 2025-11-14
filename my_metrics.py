@@ -8,7 +8,7 @@ Used by the Jupyter notebooks to compute metric values and export them as CSV ta
 import pandas as pd
 from rdflib import Graph, Literal, URIRef, BNode, RDF, OWL, RDFS
 from SPARQLWrapper import SPARQLWrapper, JSON
-from metrics_loader import get_sparql_from_endpoint
+from graph_loader import get_sparql_from_endpoint
 
 ############## LOCAL FILE FUNCTIONS ##############
 
