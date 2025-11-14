@@ -20,6 +20,10 @@ import sys, subprocess
 import jupyter_client
 from urllib.parse import urlparse, urlsplit
 
+import json
+import streamlit.components.v1 as components
+import time
+
 # Initializing session state variables for controlling the app flow
 if "button_pressed" not in st.session_state:
     st.session_state.button_pressed = False
@@ -675,6 +679,7 @@ if run:
         # If an error occurs during calculation, show an error message
         st.error(f"Metric calculation threw an error: {str(e)}")
 
+
 # Displaying the results if calculation is complete
 if ("df_to_show" in st.session_state) and st.session_state.calculating == False:
     # Create columns for the table display
@@ -692,3 +697,42 @@ if ("df_to_show" in st.session_state) and st.session_state.calculating == False:
         height=table_height,
         hide_index=True # Hide the row index for a cleaner view
     )
+
+    snapshot_json = st.session_state["df_to_show"].to_json(orient="records")
+
+    # for saving results in browser-memory
+    if st.button("Save Metric Values to Browser-Memory", type="primary"):
+        unique = time.time()
+    #     # invisible element to be rendered
+        # components.html(
+        #     f"""
+        #     <script>
+        #         const entry = {{
+        #             timestamp: new Date().toISOString(),
+        #             data: {snapshot_json}
+        #         }};
+        #         let history = JSON.parse(localStorage.getItem("metrikg_history") || "[]");
+        #         history.push(entry);
+        #         localStorage.setItem("metrikg_history", JSON.stringify(history));
+        #         alert("Results saved in Browser-Memory.");
+        #     </script>
+        #     """,
+        #     height=0,   # invbisible
+        # )
+
+        components.html(
+            f"""
+            <script>
+                console.log("save_snapshot_{unique}");
+                const entry = {{
+                    timestamp: new Date().toISOString(),
+                    data: {snapshot_json}
+                }};
+                let history = JSON.parse(localStorage.getItem("metrikg_history") || "[]");
+                history.push(entry);
+                localStorage.setItem("metrikg_history", JSON.stringify(history));
+                alert("Metric Values saved to Browser-Memory.");
+            </script>
+            """,
+            height=0
+        )
