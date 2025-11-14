@@ -8,6 +8,7 @@ Used by the Jupyter notebooks to compute metric values and export them as CSV ta
 import pandas as pd
 from rdflib import Graph, Literal, URIRef, BNode, RDF, OWL, RDFS
 from SPARQLWrapper import SPARQLWrapper, JSON
+from metrics_loader import get_sparql_from_endpoint
 
 ############## LOCAL FILE FUNCTIONS ##############
 
@@ -844,41 +845,41 @@ def cohesion_local(g: Graph, dec_places: int = 2) -> pd.DataFrame:
 ############## ENDPOINT FUNCTIONS ##############
 
 
-def _get_sparql_from_endpoint(endpoint_url: str, default_graph: str = None):
-    """
-    Initializes and configures a SPARQLWrapper instance for a given endpoint.
+# def _get_sparql_from_endpoint(endpoint_url: str, default_graph: str = None):
+#     """
+#     Initializes and configures a SPARQLWrapper instance for a given endpoint.
 
-    This helper function creates a SPARQLWrapper object, optionally sets a default
-    graph for the queries, and sets the default return format to JSON.
+#     This helper function creates a SPARQLWrapper object, optionally sets a default
+#     graph for the queries, and sets the default return format to JSON.
 
-    Args:
-        endpoint_url (str): The URL of the SPARQL endpoint to connect to.
-        default_graph (str, optional): The URI of the default graph to be used
-                                       for queries. If None, no default graph
-                                       is set. Defaults to None.
+#     Args:
+#         endpoint_url (str): The URL of the SPARQL endpoint to connect to.
+#         default_graph (str, optional): The URI of the default graph to be used
+#                                        for queries. If None, no default graph
+#                                        is set. Defaults to None.
 
-    Returns:
-        SPARQLWrapper: A configured SPARQLWrapper instance ready to be used for
-                       executing queries.
+#     Returns:
+#         SPARQLWrapper: A configured SPARQLWrapper instance ready to be used for
+#                        executing queries.
 
-    Raises:
-        ConnectionError: If the SPARQLWrapper instance cannot be initialized, e.g.,
-                         due to an invalid endpoint URL, network issue, or
-                         misconfiguration.
-    """
+#     Raises:
+#         ConnectionError: If the SPARQLWrapper instance cannot be initialized, e.g.,
+#                          due to an invalid endpoint URL, network issue, or
+#                          misconfiguration.
+#     """
     
-    try:
-        sparql = SPARQLWrapper(endpoint_url)
+#     try:
+#         sparql = SPARQLWrapper(endpoint_url)
         
-        if default_graph:
-            sparql.addDefaultGraph(default_graph)
+#         if default_graph:
+#             sparql.addDefaultGraph(default_graph)
         
-        sparql.setReturnFormat(JSON)
+#         sparql.setReturnFormat(JSON)
         
-        return sparql
+#         return sparql
     
-    except Exception as e:
-        raise ConnectionError(f"Failed to initialize SPARQL endpoint: {e}")
+#     except Exception as e:
+#         raise ConnectionError(f"Failed to initialize SPARQL endpoint: {e}")
 
 def _send_query(query: str, sparql: SPARQLWrapper, retfmt=JSON):
     """
@@ -1181,7 +1182,7 @@ def paths_depth_endpoint(endpoint_url: str, default_graph: str | None = None, de
         pd.DataFrame: A DataFrame containing the names and calculated values of the metrics.
     """
 
-    sparql = _get_sparql_from_endpoint(endpoint_url, default_graph)
+    sparql = get_sparql_from_endpoint(endpoint_url, default_graph)
 
     query_literals = """
         SELECT DISTINCT ?literal
@@ -1509,7 +1510,7 @@ def ont_tangledness_endpoint(endpoint_url: str, default_graph: str | None = None
                       and its calculated value.
     """
 
-    sparql = _get_sparql_from_endpoint(endpoint_url, default_graph)
+    sparql = get_sparql_from_endpoint(endpoint_url, default_graph)
 
     num_classes = _get_num_classes_ep(sparql)
 
@@ -1570,7 +1571,7 @@ def degree_variance_endpoint(endpoint_url: str, default_graph: str | None = None
                       and its calculated value.
     """
     
-    sparql = _get_sparql_from_endpoint(endpoint_url, default_graph)
+    sparql = get_sparql_from_endpoint(endpoint_url, default_graph)
 
     # nG...number of nodes in gaph
     # nE...number of edges in graph
@@ -1684,7 +1685,7 @@ def primitives_endpoint(endpoint_url: str, default_graph: str | None = None, dec
                       and calculated values of the primitive metrics.
     """
 
-    sparql = _get_sparql_from_endpoint(endpoint_url, default_graph)
+    sparql = get_sparql_from_endpoint(endpoint_url, default_graph)
 
     # Calculating nG for checking default graph (otherwise calculation will get en error if given default graph IRI does not exist in endpoint) 
     query_nG = """
@@ -1855,7 +1856,7 @@ def depth_of_inh_tree_endpoint(endpoint_url: str, default_graph: str | None = No
     Returns:
         pd.DataFrame: A DataFrame containing the names and calculated value of the metric.
     """
-    sparql = _get_sparql_from_endpoint(endpoint_url, default_graph)
+    sparql = get_sparql_from_endpoint(endpoint_url, default_graph)
 
     max_depth_inh_tree = 0
 
@@ -2113,7 +2114,7 @@ def tbox_endpoint(endpoint_url: str, default_graph: str | None = None, dec_place
         pd.DataFrame: A DataFrame containing the names and calculated values of the T-Box metrics.
     """
 
-    sparql = _get_sparql_from_endpoint(endpoint_url, default_graph)
+    sparql = get_sparql_from_endpoint(endpoint_url, default_graph)
 
     # Inheritance Richness = average number of subclasses per class (source 227 - page 9) 
     # Getting number of all subclasses
@@ -2217,7 +2218,7 @@ def abox_endpoint(endpoint_url: str, default_graph: str | None = None, dec_place
         pd.DataFrame: A DataFrame containing the names and calculated values of the A-Box metrics.
     """
 
-    sparql = _get_sparql_from_endpoint(endpoint_url, default_graph)
+    sparql = get_sparql_from_endpoint(endpoint_url, default_graph)
 
     num_classes = _get_num_classes_ep(sparql)
 
@@ -2335,7 +2336,7 @@ def cohesion_endpoint(endpoint_url: str, default_graph: str | None = None, dec_p
         pd.DataFrame: A DataFrame containing the name and calculated values of the cohesion metric.
     """
 
-    sparql = _get_sparql_from_endpoint(endpoint_url, default_graph)
+    sparql = get_sparql_from_endpoint(endpoint_url, default_graph)
 
     # for storing neighbors of nodes
     neighbors_cache = {}

@@ -38,25 +38,60 @@ def load_graph_from_file(file_or_path) -> Graph:
     return g
 
 def get_sparql_from_endpoint(endpoint_url: str, default_graph: str = None):
-    """
-        Creates and returns a SPARQLWrapper object connected to a specified endpoint.
-        Optionally adds a default graph to the query if provided.
+    # """
+    #     Creates and returns a SPARQLWrapper object connected to a specified endpoint.
+    #     Optionally adds a default graph to the query if provided.
         
-        Arguments:
-        - endpoint_url (str): The URL of the SPARQL endpoint.
-        - default_graph (str, optional): A default graph to use in the SPARQL query (optional).
+    #     Arguments:
+    #     - endpoint_url (str): The URL of the SPARQL endpoint.
+    #     - default_graph (str, optional): A default graph to use in the SPARQL query (optional).
         
-        Returns:
-        - sparql (SPARQLWrapper): A SPARQLWrapper object configured to interact with the endpoint.
+    #     Returns:
+    #     - sparql (SPARQLWrapper): A SPARQLWrapper object configured to interact with the endpoint.
+    # """
+    # # Creating a SPARQLWrapper instance to interact with the endpoint.
+    # sparql = SPARQLWrapper(endpoint_url)
+    
+    # # Adding the default graph to the SPARQL query if provided.
+    # if default_graph:
+    #     sparql.addDefaultGraph(default_graph)
+    
+    # # Setting the return format of the query results to JSON.
+    # sparql.setReturnFormat(JSON)
+    
+    # return sparql
+
     """
-    # Creating a SPARQLWrapper instance to interact with the endpoint.
-    sparql = SPARQLWrapper(endpoint_url)
+    Initializes and configures a SPARQLWrapper instance for a given endpoint.
+
+    This helper function creates a SPARQLWrapper object, optionally sets a default
+    graph for the queries, and sets the default return format to JSON.
+
+    Args:
+        endpoint_url (str): The URL of the SPARQL endpoint to connect to.
+        default_graph (str, optional): The URI of the default graph to be used
+                                       for queries. If None, no default graph
+                                       is set. Defaults to None.
+
+    Returns:
+        SPARQLWrapper: A configured SPARQLWrapper instance ready to be used for
+                       executing queries.
+
+    Raises:
+        ConnectionError: If the SPARQLWrapper instance cannot be initialized, e.g.,
+                         due to an invalid endpoint URL, network issue, or
+                         misconfiguration.
+    """
     
-    # Adding the default graph to the SPARQL query if provided.
-    if default_graph:
-        sparql.addDefaultGraph(default_graph)
+    try:
+        sparql = SPARQLWrapper(endpoint_url)
+        
+        if default_graph:
+            sparql.addDefaultGraph(default_graph)
+        
+        sparql.setReturnFormat(JSON)
+        
+        return sparql
     
-    # Setting the return format of the query results to JSON.
-    sparql.setReturnFormat(JSON)
-    
-    return sparql
+    except Exception as e:
+        raise ConnectionError(f"Failed to initialize SPARQL endpoint: {e}")
