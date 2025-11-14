@@ -1,11 +1,11 @@
 # ignore everything
 *
 
-# only track the following
+# only track the following files
 !.gitignore
 !README.md
 !app.py
-!metrics_loader.py
+!graph_loader.py
 !my_metrics.py
 !nb_endpoint.ipynb
 !nb_file.ipynb
