@@ -48,6 +48,10 @@ Start the web interface using Streamlit:
 
     streamlit run app.py
 
+If you want to run the version with the visualization possiblity, then run:
+
+    streamlit run app2.py
+
 
 By default, the tool will be accessible at: [http://localhost:8501](http://localhost:8501)
 

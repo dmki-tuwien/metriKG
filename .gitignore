@@ -5,6 +5,7 @@
 !.gitignore
 !README.md
 !app.py
+!app2.py
 !graph_loader.py
 !my_metrics.py
 !nb_endpoint.ipynb
