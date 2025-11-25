@@ -89,7 +89,7 @@ def is_valid_endpoint_url(url: str) -> bool:
 # Defining the list of all metric rows
 ALL_METRIC_ROWS = [
     # Paths/Depth
-    "Number of Paths", "Absolute Depth", "Average Depth", "Maximal Depth",
+    "Number of Paths", "Absolute Depth", "Average Depth", "Maximum Depth",
     # Ontology Tangledness
     "Ontology Tangledness",
     # Degree
@@ -118,7 +118,7 @@ if "results_df" not in st.session_state:
 
 # Mapping of categories to their metrics
 CATEGORY_TO_METRICS = {
-    "paths_depth" : ["Number of Paths", "Absolute Depth", "Average Depth", "Maximal Depth"],
+    "paths_depth" : ["Number of Paths", "Absolute Depth", "Average Depth", "Maximum Depth"],
     "ont_tangledness" : ["Ontology Tangledness"],
     "degree_variance": ["Degree Variance"],
     "primitives": ["Number of Entities", "Number of Properties", "Number of Classes", "Number of Instances", "Number of Object Properties"],
@@ -167,7 +167,7 @@ def ensure_kernel(kernel_name="metrikg-venv", display=None):
 KERNEL = ensure_kernel() 
 
 # Streamlit page configuration
-st.set_page_config(page_title="Metric Calculation for Evolving Knowledge Graphs", page_icon="📊", layout="wide")
+st.set_page_config(page_title="Metric Computation for Evolving Knowledge Graphs", page_icon="📊", layout="wide")
 
 # Paths to files for notebooks
 BASE = Path(__file__).resolve().parent
@@ -201,7 +201,7 @@ METRIC_HELP_LOCAL = {
                     
                     "**Average Depth** ([Reference](https://link.springer.com/chapter/10.1007/11762256_13)):  \n &nbsp;&nbsp;&nbsp;&nbsp;  The average length of a path (Absolute Depth / Number of Paths)\n\n"
                     
-                    "**Maximal Depth** ([Reference](https://onlinelibrary.wiley.com/doi/10.1002/isaf.1360)):  \n &nbsp;&nbsp;&nbsp;&nbsp; The length of the longest path found in the graph",
+                    "**Maximum Depth** ([Reference](https://onlinelibrary.wiley.com/doi/10.1002/isaf.1360)):  \n &nbsp;&nbsp;&nbsp;&nbsp; The length of the longest path found in the graph",
 
     "ont_tangledness":  "**Ontology Tangledness** ([Reference](https://www.scitepress.org/Link.aspx?doi=10.5220/0004541400480057)):  \n"
                         "&nbsp;&nbsp;&nbsp;&nbsp;The ratio of total classes (criteria for a class: see **Number of Classes**) to classes"
@@ -238,7 +238,7 @@ METRIC_HELP_LOCAL = {
                     "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2. All unique predicates in the rdf triples that have a non-literal as an object (A-Box). ",
 
     "depth_of_inheritance_tree": "**Depth of Inheritance Tree** ([Reference](https://onlinelibrary.wiley.com/doi/10.1002/smr.341)):  \n &nbsp;&nbsp;&nbsp;&nbsp; "   
-                                 "This metric measures the maximal depth (= number of edges in longest path) of the class hierarchy based on `rdfs:subClassOf` relationships.\n\n"
+                                 "This metric measures the maximum depth (= number of edges in longest path) of the class hierarchy based on `rdfs:subClassOf` relationships.\n\n"
                                  "The calculation starts by identifying all root classes (classes that are not a subclass of any other class). From each root, the hierarchy is traversed downwards using a depth-first search (DFS) algorithm to find the longest path to a leaf class (a class with no subclasses).  \n\n",
 
     "tbox": "**Property/Class-Ratio** ([Reference](https://onlinelibrary.wiley.com/doi/10.1002/smr.341)):  \n &nbsp;&nbsp;&nbsp;&nbsp; The ratio of explicitly declared T-Box properties (`owl:ObjectProperty`, `owl:DatatypeProperty`, `owl:AnnotationProperty`) to the total number of classes (criteria for a class: see **Number of Classes**). \n\n"
@@ -298,7 +298,7 @@ METRIC_HELP_ENDPOINT = {
                     
                     "**Average Depth** ([Reference](https://link.springer.com/chapter/10.1007/11762256_13)):  \n &nbsp;&nbsp;&nbsp;&nbsp;  The average length of a path (Absolute Depth / Number of Paths)\n\n"
                     
-                    "**Maximal Depth** ([Reference](https://onlinelibrary.wiley.com/doi/10.1002/isaf.1360)):  \n &nbsp;&nbsp;&nbsp;&nbsp; The length of the longest path found in the graph",
+                    "**Maximum Depth** ([Reference](https://onlinelibrary.wiley.com/doi/10.1002/isaf.1360)):  \n &nbsp;&nbsp;&nbsp;&nbsp; The length of the longest path found in the graph",
 
     "ont_tangledness":  "**Ontology Tangledness** ([Reference](https://www.scitepress.org/Link.aspx?doi=10.5220/0004541400480057)):  \n"
                         "&nbsp;&nbsp;&nbsp;&nbsp;The ratio of total classes (criteria for a class: see **Number of Classes**) to classes"
@@ -335,7 +335,7 @@ METRIC_HELP_ENDPOINT = {
                     "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2. All unique predicates in the rdf triples that have a non-literal as an object (A-Box). ",
 
     "depth_of_inheritance_tree": "**Depth of Inheritance Tree** ([Reference](https://onlinelibrary.wiley.com/doi/10.1002/smr.341)):  \n &nbsp;&nbsp;&nbsp;&nbsp; "   
-                                 "This metric measures the maximal depth (= number of edges in longest path) of the class hierarchy based on `rdfs:subClassOf` relationships.\n\n"
+                                 "This metric measures the maximum depth (= number of edges in longest path) of the class hierarchy based on `rdfs:subClassOf` relationships.\n\n"
                                  "The calculation starts by identifying all root classes (classes that are not a subclass of any other class)."
                                 " From each root, the hierarchy is traversed downwards using a depth-first search (DFS) algorithm to find the longest path to a leaf class (a class with no subclasses).  \n\n"
                                 "To determine this hierarchy remotely, the function first reconstructs the class structure using SPARQL queries before performing a local traversal:  \n\n"
@@ -422,7 +422,7 @@ left, right = st.columns([5, 5])
 
 with left:
 
-    st.header("Metric Calculation")
+    st.header("Metric Computation")
 
     #st.subheader("Metric Calculation")
     # User interface for selecting the source of the data (either uploading a file or providing a SPARQL endpoint URL)
@@ -686,7 +686,7 @@ with left:
 
         except Exception as e:
             # If an error occurs during calculation, show an error message
-            st.error(f"Metric calculation threw an error: {str(e)}")
+            st.error(f"Metric Computation threw an error: {str(e)}")
 
 
     # Displaying the results if calculation is complete
@@ -747,7 +747,7 @@ with left:
             )
 
 with right:
-    st.header("Visualization")
+    st.header("Metric History Visualization")
 
     uploaded_file = st.file_uploader(
         "CSV File containing metric data",

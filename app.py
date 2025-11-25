@@ -24,7 +24,7 @@ from urllib.parse import urlparse, urlsplit
 import streamlit.components.v1 as components
 import time
 
-import altair as alt
+#import altair as alt
 
 # Initializing session state variables for controlling the app flow
 if "button_pressed" not in st.session_state:
@@ -167,7 +167,7 @@ def ensure_kernel(kernel_name="metrikg-venv", display=None):
 KERNEL = ensure_kernel() 
 
 # Streamlit page configuration
-st.set_page_config(page_title="Metric Calculation for Evolving Knowledge Graphs", page_icon="📊", layout="wide")
+st.set_page_config(page_title="Metric Computation for Evolving Knowledge Graphs", page_icon="📊", layout="wide")
 
 # Paths to files for notebooks
 BASE = Path(__file__).resolve().parent
@@ -416,7 +416,7 @@ def metric_keys_to_run(selected_key: str) -> list[str]:
     return [selected_key]
 
 # Streamlit page title
-st.title("Metric Calculation for Evolving Knowledge Graphs")
+st.title("Metric Computation for Evolving Knowledge Graphs")
 
 # User interface for selecting the source of the data (either uploading a file or providing a SPARQL endpoint URL)
 source = st.radio("Source", ["Local RDF-File", "SPARQL Endpoint"], horizontal=True)
@@ -679,7 +679,7 @@ if run:
 
     except Exception as e:
         # If an error occurs during calculation, show an error message
-        st.error(f"Metric calculation threw an error: {str(e)}")
+        st.error(f"Metric Computation threw an error: {str(e)}")
 
 
 # Displaying the results if calculation is complete
@@ -739,176 +739,69 @@ if ("df_to_show" in st.session_state) and st.session_state.calculating == False:
             height=0
         )
 
-st.header("Visualization")
+# st.header("Metric History Visualization")
 
-uploaded_file = st.file_uploader(
-    "CSV File containing metric data",
-    type=["csv"]
-)
+# uploaded_file = st.file_uploader(
+#     "CSV File containing metric data",
+#     type=["csv"]
+# )
 
-if uploaded_file is not None:
-    # CSV einlesen
-    df = pd.read_csv(uploaded_file, sep=None, engine="python")
+# if uploaded_file is not None:
+#     # CSV einlesen
+#     df = pd.read_csv(uploaded_file, sep=None, engine="python")
 
-    # Spalten prüfen
-    expected_cols = ["Metric", "Value", "Source", "Run At"]
-    missing = [c for c in expected_cols if c not in df.columns]
-    if missing:
-        st.error(f"Fehlende Spalten in der CSV: {missing}")
-        st.stop()
+#     # Spalten prüfen
+#     expected_cols = ["Metric", "Value", "Source", "Run At"]
+#     missing = [c for c in expected_cols if c not in df.columns]
+#     if missing:
+#         st.error(f"Fehlende Spalten in der CSV: {missing}")
+#         st.stop()
 
-    # Zeit und Wert parsen
-    df["Run At"] = pd.to_datetime(
-        df["Run At"],
-        dayfirst=True,      # für 17.11.2025 15:58:51
-        errors="coerce"
-    )
-    df["Value"] = pd.to_numeric(df["Value"], errors="coerce")
-    df = df.dropna(subset=["Run At", "Value"])
+#     # Zeit und Wert parsen
+#     df["Run At"] = pd.to_datetime(
+#         df["Run At"],
+#         dayfirst=True,      # für 17.11.2025 15:58:51
+#         errors="coerce"
+#     )
+#     df["Value"] = pd.to_numeric(df["Value"], errors="coerce")
+#     df = df.dropna(subset=["Run At", "Value"])
 
-    # Metriken holen
-    metrics = sorted(df["Metric"].unique())
+#     # Metriken holen
+#     metrics = sorted(df["Metric"].unique())
 
-    # Wenn nur eine Metrik vorhanden ist, kein Selectbox anzeigen
-    if len(metrics) == 1:
-        selected_metric = metrics[0]
-        st.write(f"Found metric: **{selected_metric}**")
-    else:
-        selected_metric = st.selectbox("Select metric", metrics)
+#     # Wenn nur eine Metrik vorhanden ist, kein Selectbox anzeigen
+#     if len(metrics) == 1:
+#         selected_metric = metrics[0]
+#         st.write(f"Found metric: **{selected_metric}**")
+#     else:
+#         selected_metric = st.selectbox("Select metric", metrics)
 
-    # metric_df = df[df["Metric"] == selected_metric].copy()
-    # metric_df = metric_df.sort_values("Run At")
+#     metric_df = df[df["Metric"] == selected_metric].copy()
+#     metric_df = metric_df.sort_values("Run At")
 
-    # if metric_df.empty:
-    #     st.warning("Keine Daten für die ausgewählte Metrik.")
-    # else:
-    #     st.subheader(f"Visualization of: {selected_metric}")
+#     # String-Spalte für die Achsenlabels (nur dort gibt es auch Werte)
+#     metric_df["Run At Label"] = metric_df["Run At"].dt.strftime("%d.%m.%Y %H:%M:%S")
 
-    #     # Alle Werte der Metrik plotten
-    #     chart = (
-    #         alt.Chart(metric_df)
-    #         .mark_line(point=True)
-    #         .encode(
-    #             x=alt.X(
-    #                     "Run At:T",
-    #                     title="Datum",
-    #                     axis=alt.Axis(format="%d.%m.%Y")  # nur Datum anzeigen
-    #                 ),
-    #             y=alt.Y("Value:Q", title="Value"),
-    #             tooltip=["Run At:T", "Value:Q", "Source:N"]
-    #         )
-    #         .properties(width="container", height=400)
-    #     )
+#     st.subheader(f"Visualization of: {selected_metric}")
 
-    #     st.altair_chart(chart, use_container_width=True)
+#     chart = (
+#         alt.Chart(metric_df)
+#         .mark_line(point=True)
+#         .encode(
+#             # diskrete Achse: ein Tick pro vorhandenem Messzeitpunkt
+#             x=alt.X(
+#                 "Run At Label:N",
+#                 title="Timestamp",
+#                 axis=alt.Axis(labelAngle=-45) 
+#             ),
+#             y=alt.Y("Value:Q", title="Value"),
+#             tooltip=[
+#                 alt.Tooltip("Run At:T", title="Timestamp"),
+#                 alt.Tooltip("Value:Q", title="Value"),
+#                 alt.Tooltip("Source:N", title="Source")
+#             ]
+#         )
+#         .properties(width="container", height=400)
+#     )
 
-    ####
-
-    metric_df = df[df["Metric"] == selected_metric].copy()
-    metric_df = metric_df.sort_values("Run At")
-
-    # String-Spalte für die Achsenlabels (nur dort gibt es auch Werte)
-    metric_df["Run At Label"] = metric_df["Run At"].dt.strftime("%d.%m.%Y %H:%M:%S")
-
-    st.subheader(f"Visualization of: {selected_metric}")
-
-    chart = (
-        alt.Chart(metric_df)
-        .mark_line(point=True)
-        .encode(
-            # diskrete Achse: ein Tick pro vorhandenem Messzeitpunkt
-            x=alt.X(
-                "Run At Label:N",
-                title="Timestamp",
-                axis=alt.Axis(labelAngle=-45) 
-            ),
-            y=alt.Y("Value:Q", title="Value"),
-            tooltip=[
-                alt.Tooltip("Run At:T", title="Timestamp"),
-                alt.Tooltip("Value:Q", title="Value"),
-                alt.Tooltip("Source:N", title="Source")
-            ]
-        )
-        .properties(width="container", height=400)
-    )
-
-    st.altair_chart(chart, use_container_width=True)
-
-    ####
-
-    # metric_df = df[df["Metric"] == selected_metric].copy()
-    # metric_df = metric_df.sort_values("Run At")
-
-    # chart = (
-    #     alt.Chart(metric_df)
-    #     .mark_line(point=True)
-    #     .encode(
-    #         # X bleibt kontinuierliche Zeit, Labels zeigen nur Datum
-    #         x=alt.X(
-    #             "Run At:T",
-    #             title="Datum",
-    #             axis=alt.Axis(format="%d.%m.%Y")  # nur Datum anzeigen
-    #         ),
-    #         y=alt.Y("Value:Q", title="Wert"),
-    #         tooltip=[
-    #             alt.Tooltip(
-    #                 "Run At:T",
-    #                 title="Zeitpunkt",
-    #                 format="%d.%m.%Y %H:%M:%S"  # im Tooltip Datum + Uhrzeit
-    #             ),
-    #             alt.Tooltip("Value:Q", title="Wert"),
-    #             alt.Tooltip("Source:N", title="Quelle")
-    #         ]
-    #     )
-    #     .properties(
-    #         width="container",
-    #         height=400
-    #     )
-    # )
-
-    # st.altair_chart(chart, use_container_width=True)
-
-    ####
-
-    # metric_df = df[df["Metric"] == selected_metric].copy()
-    # metric_df = metric_df.sort_values("Run At")
-
-    # # Alle Tage, an denen es Messungen gibt (Mitternacht-normalisiert)
-    # tick_days = (
-    #     metric_df["Run At"]
-    #     .dt.normalize()        # Zeit -> 00:00:00, nur Tag bleibt
-    #     .drop_duplicates()
-    #     .sort_values()
-    # )
-
-    # chart = (
-    #     alt.Chart(metric_df)
-    #     .mark_line(point=True)
-    #     .encode(
-    #         x=alt.X(
-    #             "Run At:T",
-    #             title="Datum",
-    #             axis=alt.Axis(
-    #                 values=list(tick_days),          # nur diese Tage beschriften
-    #                 format="%d.%m.%Y",
-    #                 #labelAngle=-45                  # optional lesbarer
-    #             )
-    #         ),
-    #         y=alt.Y("Value:Q", title="Wert"),
-    #         tooltip=[
-    #             alt.Tooltip(
-    #                 "Run At:T",
-    #                 title="Zeitpunkt",
-    #                 format="%d.%m.%Y %H:%M:%S"
-    #             ),
-    #             alt.Tooltip("Value:Q", title="Wert"),
-    #             alt.Tooltip("Source:N", title="Quelle")
-    #         ]
-    #     )
-    #     .properties(
-    #         width="container",
-    #         height=400
-    #     )
-    # )
-
-    # st.altair_chart(chart, use_container_width=True)
+#     st.altair_chart(chart, use_container_width=True)

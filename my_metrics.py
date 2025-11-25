@@ -112,7 +112,7 @@ def paths_depth_local(g: Graph, dec_places: int = 2) -> pd.DataFrame:
       root node and ending at a leaf node (a node with no outgoing edges or a literal).
     - **Absolute Depth**: The sum of the lengths (in edges) of all identified paths.
     - **Average Depth**: The average length of a path (Absolute Depth / Number of Paths).
-    - **Maximal Depth**: The length of the longest path found in the graph.
+    - **Maximum Depth**: The length of the longest path found in the graph.
 
     A "root" is defined as any node that does not appear as an object in any triple,
     ensuring that traversals start at the top-level nodes of the graph structure.
@@ -125,7 +125,7 @@ def paths_depth_local(g: Graph, dec_places: int = 2) -> pd.DataFrame:
 
     Returns:
         pd.DataFrame: A DataFrame with the calculated metrics: "Number of Paths",
-                      "Absolute Depth", "Average Depth", and "Maximal Depth".
+                      "Absolute Depth", "Average Depth", and "Maximum Depth".
     """
 
     num_paths = 0
@@ -226,7 +226,7 @@ def paths_depth_local(g: Graph, dec_places: int = 2) -> pd.DataFrame:
         {"Metric": "Number of Paths", "Value": int(num_paths)},
         {"Metric": "Absolute Depth", "Value": int(abs_depth)},
         {"Metric": "Average Depth", "Value": float(avg_depth)},
-        {"Metric": "Maximal Depth", "Value": int(max_depth)},
+        {"Metric": "Maximum Depth", "Value": int(max_depth)},
     ])
 
 def ont_tangledness_local(g: Graph, dec_places: int = 2) -> pd.DataFrame:
@@ -1140,7 +1140,7 @@ def paths_depth_endpoint(endpoint_url: str, default_graph: str | None = None, de
       root node and ending at a leaf node (a node with no outgoing edges or a literal).
     - **Absolute Depth**: The sum of the lengths (in edges) of all identified paths.
     - **Average Depth**: The average length of a path (Absolute Depth / Number of Paths).
-    - **Maximal Depth**: The length of the longest path found in the graph.
+    - **Maximum Depth**: The length of the longest path found in the graph.
 
     Implementation Details:
 
@@ -1484,7 +1484,7 @@ def paths_depth_endpoint(endpoint_url: str, default_graph: str | None = None, de
         {"Metric": "Number of Paths", "Value": int(num_paths)},
         {"Metric": "Absolute Depth", "Value": int(abs_depth)},
         {"Metric": "Average Depth", "Value": float(avg_depth)},
-        {"Metric": "Maximal Depth", "Value": int(max_depth)},
+        {"Metric": "Maximum Depth", "Value": int(max_depth)},
     ])
 
 def ont_tangledness_endpoint(endpoint_url: str, default_graph: str | None = None, dec_places: int = 2) -> pd.DataFrame:
