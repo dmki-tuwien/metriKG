@@ -90,7 +90,9 @@ def _get_num_instances_local(g: Graph) -> int:
 
     instances = {s for s in g.subjects(RDF.type, None)}
 
-    classes = {o for o in g.objects(None, RDF.type)}
+    #classes = {o for o in g.objects(None, RDF.type)}
+
+    classes = _get_classes_local(g)
 
     # we just want the individuals
     individuals = instances - classes 
@@ -1007,6 +1009,94 @@ def _get_num_classes_ep(sparql: SPARQLWrapper) -> int:
 
     return num_classes
 
+def _get_classes_ep(sparql: SPARQLWrapper):
+    """
+    Queries a SPARQL endpoint to count the total number of unique classes.
+
+    This function uses a SPARQL query to identify and count all
+    distinct classes based on some criteria. A class can be:
+
+    1.  Any resource that is the object of +an `rdf:type` triple.
+    2.  Both the subject and object of an `rdfs:subClassOf` triple.
+    3.  Both the subject and object of an `owl:equivalentClass` triple.
+    4.  The subject of a triple declaring an `owl:Restriction`.
+    5.  The subject of complex class definitions using `owl:unionOf`, 
+        `owl:intersectionOf`, `owl:complementOf`, or `owl:oneOf`.
+    6.  The subject of an `owl:hasValue` restriction.
+
+    Args:
+        sparql (SPARQLWrapper): A configured SPARQLWrapper instance 
+
+    Returns:
+        int: The total number of unique classes found in the endpoint.
+    """
+    
+    # Defintion of Class: 
+    # source: 213, page: 5 - source 250, page 3
+    # TNOC (total number of classes/concepts) = classes, subclasses, superclasses, anonymous classes
+    # anonymous classes = equivalent/restriction/unionOf/intersectionOf/complementOf/oneOf/hasValue classes
+    query_classes = """
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+        SELECT DISTINCT ?class
+        WHERE {
+            {
+                # 1. explicitly/implicitly used RDF classes
+                # explicitly: ?class a owl:Class . or ?class a rdfs:Class .
+                # implicitly: ?any rdf:type ?class . (includes also explicitly used classes)
+
+                ?any rdf:type ?class .
+            }
+        UNION
+            {
+                # 2. subclasses
+                ?class rdfs:subClassOf ?any .
+            }
+        UNION
+            {
+                # 3. superclasses
+                ?any rdfs:subClassOf ?class .
+            }
+        UNION
+            {
+                # 4. classes used with owl:equivalentClass
+                { ?class owl:equivalentClass ?any . }
+                UNION
+                { ?any owl:equivalentClass ?class . }
+            }
+        UNION
+            {
+                # 5. OWL restriction classes
+                ?class a owl:Restriction .
+            }
+        UNION
+            {
+                # 6. complex classes with using unionOf, intersectionOf etc.
+                ?class owl:unionOf|owl:intersectionOf|owl:complementOf|owl:oneOf ?list .
+            }
+        UNION
+            {
+                # 7. OWL hasValue restrictions
+                ?class owl:hasValue ?val .
+            }
+        }  
+    """
+
+    results = _send_query(query_classes, sparql, JSON)
+
+    # num_classes = 0
+
+    classes = set()
+
+    for binding in results["results"]["bindings"]:
+        # num_classes = int(binding["num_classes"]["value"])
+        classes.add(binding["class"]["value"])
+
+    # return num_classes
+    return classes
+
 def _get_num_instances_ep(sparql: SPARQLWrapper) -> int:
     """
     Retrieves and counts the number of instance resources (ABox individuals) 
@@ -1058,6 +1148,58 @@ def _get_num_instances_ep(sparql: SPARQLWrapper) -> int:
 
     return num_instances
 
+def _get_num_instances_ep_2(sparql: SPARQLWrapper) -> int:
+    """
+    Retrieves and counts the number of instance resources (ABox individuals) 
+    in an RDF graph accessible through a SPARQL endpoint.
+
+    This function queries the endpoint for all triples of the form 
+    `?s rdf:type ?type` to identify resources that are explicitly declared 
+    as instances of some class. It then distinguishes between classes 
+    (objects of `rdf:type` statements) and instances (subjects of such statements).
+
+    To ensure that only true ABox individuals are counted (and not classes that 
+    also appear as instances), the function subtracts the set of classes from 
+    the set of all subjects.
+
+    The result corresponds to the total number of entities that appear as 
+    instances but not as classes within the RDF graph.
+
+    Args:
+        sparql (SPARQLWrapper):  A configured SPARQLWrapper instance.
+
+    Returns:
+        int: The number of unique instances (individuals) in the graph. 
+    """
+    query_inst = """ 
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        SELECT DISTINCT ?s
+        WHERE {
+            ?s rdf:type ?type . 
+        }
+    """
+
+    results = _send_query(query_inst, sparql, JSON)
+    
+    num_instances = 0
+
+    instances = set()
+    # classes = set()
+
+    for binding in results["results"]["bindings"]:
+        # rdf_class = binding["type"]["value"]
+        instance = binding["s"]["value"]
+
+        # classes.add(rdf_class)
+        instances.add(instance)
+
+    classes = _get_classes_ep(sparql)
+
+    indidivuals = instances - classes
+
+    num_instances = len(indidivuals)
+
+    return num_instances
 
 def _get_num_properties_ep(sparql: SPARQLWrapper, calc_t: bool = True , calc_a: bool = True) -> tuple[int, int]:
     """
@@ -1512,7 +1654,11 @@ def ont_tangledness_endpoint(endpoint_url: str, default_graph: str | None = None
 
     sparql = get_sparql_from_endpoint(endpoint_url, default_graph)
 
-    num_classes = _get_num_classes_ep(sparql)
+    # num_classes = _get_num_classes_ep(sparql)
+
+    classes = _get_classes_ep(sparql)
+
+    num_classes = len(classes)
 
     # Select number of classes with more than one superclass 
     query_var2 = """
@@ -1748,7 +1894,11 @@ def primitives_endpoint(endpoint_url: str, default_graph: str | None = None, dec
 
     num_instances = _get_num_instances_ep(sparql)
 
-    num_classes = _get_num_classes_ep(sparql)
+    # num_classes = _get_num_classes_ep(sparql)
+
+    classes = _get_classes_ep(sparql)
+
+    num_classes = len(classes)
 
     (num_properties_t, num_properties_a) = _get_num_properties_ep(sparql)
 
@@ -2156,7 +2306,11 @@ def tbox_endpoint(endpoint_url: str, default_graph: str | None = None, dec_place
     # this function calculates metrics regarding T-Box --> we are only interested in T-Box properties
     num_datatype_properties = num_datatype_properties_t
 
-    num_classes = _get_num_classes_ep(sparql)
+    # num_classes = _get_num_classes_ep(sparql)
+
+    classes = _get_classes_ep(sparql)
+
+    num_classes = len(classes)
 
     (num_properties_t, _) = _get_num_properties_ep(sparql, True, False)
 
@@ -2220,7 +2374,11 @@ def abox_endpoint(endpoint_url: str, default_graph: str | None = None, dec_place
 
     sparql = get_sparql_from_endpoint(endpoint_url, default_graph)
 
-    num_classes = _get_num_classes_ep(sparql)
+    # num_classes = _get_num_classes_ep(sparql)
+
+    classes = _get_classes_ep(sparql)
+
+    num_classes = len(classes)
 
     # if num_classes == 0 --> Average Class Connectivity = Average Population = 0
     if num_classes == 0:

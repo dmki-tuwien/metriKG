@@ -755,17 +755,17 @@ with right:
     )
 
     if uploaded_file is not None:
-        # CSV einlesen
+        # read CSV file 
         df = pd.read_csv(uploaded_file, sep=None, engine="python")
 
-        # Spalten prüfen
+        # check columns
         expected_cols = ["Metric", "Value", "Source", "Run At"]
         missing = [c for c in expected_cols if c not in df.columns]
         if missing:
             st.error(f"Missing columns in CSV file: {missing}")
             st.stop()
 
-        # Zeit und Wert parsen
+        # parse timestamp and value
         df["Run At"] = pd.to_datetime(
             df["Run At"],
             dayfirst=True,      # für 17.11.2025 15:58:51
@@ -779,11 +779,10 @@ with right:
         df["Value"] = pd.to_numeric(df["Value"], errors="coerce")
         df = df.dropna(subset=["Run At", "Value"])
 
-
-        # Metriken holen
+        # get metrics
         metrics = sorted(df["Metric"].unique())
 
-        # Wenn nur eine Metrik vorhanden ist, kein Selectbox anzeigen
+        # no selectbox if just one metric in file
         if len(metrics) == 1:
             selected_metric = metrics[0]
             st.write(f"Found only metric: **{selected_metric}**")
@@ -838,8 +837,8 @@ with right:
                     alt.Tooltip(
                         "Run At:T",
                         title="Timestamp",
-                        #format="%d.%m.%Y %H:%M:%S",
-                        format="%d.%m.%Y",
+                        format="%d.%m.%Y %H:%M:%S",
+                        #format="%d.%m.%Y",
                     ),
 
                     alt.Tooltip("Value:Q", title="Value"),
