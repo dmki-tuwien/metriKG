@@ -10,6 +10,11 @@ from rdflib import Graph, Literal, URIRef, BNode, RDF, OWL, RDFS
 from SPARQLWrapper import SPARQLWrapper, JSON
 from graph_loader import get_sparql_from_endpoint
 
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logging.info("test")
+
 ############## LOCAL FILE FUNCTIONS ##############
 
 def _get_classes_local(g: Graph):
@@ -387,11 +392,13 @@ def primitives_local(g: Graph, dec_places: int = 2) -> pd.DataFrame:
     num_properties_t = len(properties_t)
 
     # Properties in A-Box
+    # TODO: this takes predicates in WHOLE graph, so also T-Box predicates
     properties_a = set(g.predicates())
 
     num_properties_a = len(properties_a)
 
     num_properties = num_properties_t + num_properties_a
+
 
     ### Instances ###
 
@@ -568,7 +575,8 @@ def tbox_local(g: Graph, dec_places: int = 2) -> pd.DataFrame:
     subclass_triples = list(g.triples((None, RDFS.subClassOf, None)))
     num_subclasses = len(subclass_triples)
 
-    property_types = [OWL.ObjectProperty, OWL.DatatypeProperty, OWL.AnnotationProperty]
+    # TODO: add RDF.Property??
+    property_types = [OWL.ObjectProperty, OWL.DatatypeProperty, RDF.Property]
 
     # Properties in T-Box
     properties_t = set()
@@ -585,7 +593,7 @@ def tbox_local(g: Graph, dec_places: int = 2) -> pd.DataFrame:
     
     # this function calculates metrics regarding T-Box --> we are only interested in T-Box properties
     num_datatype_properties = len(datatype_properties_t)
-
+    
     # Property Class Ratio - Inheritance Richness - Attribute Richness 
     if num_classes > 0:
         prop_class_ratio = round(num_properties / num_classes, dec_places) 
@@ -1832,6 +1840,8 @@ def primitives_endpoint(endpoint_url: str, default_graph: str | None = None, dec
     """
 
     sparql = get_sparql_from_endpoint(endpoint_url, default_graph)
+    logging.basicConfig(level=logging.INFO)
+    logging.info("test")
 
     # Calculating nG for checking default graph (otherwise calculation will get en error if given default graph IRI does not exist in endpoint) 
     query_nG = """
@@ -1924,7 +1934,7 @@ def primitives_endpoint(endpoint_url: str, default_graph: str | None = None, dec
         num_obj_properties_t = int(binding["numObjectProperties"]["value"])
 
     # Number of object properties in A-Box
-    # Non-Inheritance -> excluding inheritance properties like rdfs:subPropertyOf or rdfs:subClassOf
+    # Non-ß -> excluding inheritance properties like rdfs:subPropertyOf or rdfs:subClassOf
     query_object_properties_a = """
         PREFIX owl: <http://www.w3.org/2002/07/owl#>
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
