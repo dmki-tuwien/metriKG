@@ -10,11 +10,6 @@ from rdflib import Graph, Literal, URIRef, BNode, RDF, OWL, RDFS
 from SPARQLWrapper import SPARQLWrapper, JSON
 from graph_loader import get_sparql_from_endpoint
 
-import logging
-
-logging.basicConfig(level=logging.INFO)
-logging.info("test")
-
 ############## LOCAL FILE FUNCTIONS ##############
 
 def _get_classes_local(g: Graph):
@@ -1881,8 +1876,6 @@ def primitives_endpoint(endpoint_url: str, default_graph: str | None = None, dec
     """
 
     sparql = get_sparql_from_endpoint(endpoint_url, default_graph)
-    # logging.basicConfig(level=logging.INFO)
-    # logging.info("test")
 
     # Calculating nG for checking default graph (otherwise calculation will get en error if given default graph IRI does not exist in endpoint) 
     query_nG = """
@@ -1955,47 +1948,6 @@ def primitives_endpoint(endpoint_url: str, default_graph: str | None = None, dec
     # num_properties = num_properties_t + num_properties_a
 
     num_properties = _get_num_properties_ep(sparql)
-
-    # Number of object properties in T-Box
-    # Non-Inheritance -> excluding inheritance properties like rdfs:subPropertyOf or rdfs:subClassOf
-    query_object_properties_t = """
-        PREFIX owl: <http://www.w3.org/2002/07/owl#>
-        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-
-        SELECT (COUNT(DISTINCT ?property) AS ?numObjectProperties)
-        WHERE {
-            ?property rdf:type owl:ObjectProperty .
-        }
-    """
-
-    results = _send_query(query_object_properties_t, sparql, JSON)
-
-    num_obj_properties_t = 0
-
-    for binding in results["results"]["bindings"]:
-        num_obj_properties_t = int(binding["numObjectProperties"]["value"])
-
-    # Number of object properties in A-Box
-    # Non-ß -> excluding inheritance properties like rdfs:subPropertyOf or rdfs:subClassOf
-    query_object_properties_a = """
-        PREFIX owl: <http://www.w3.org/2002/07/owl#>
-        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-
-        SELECT (COUNT(DISTINCT ?property) AS ?numObjectProperties)
-        WHERE {
-            ?s ?property ?o 
-            Filter(!isLiteral(?o))
-        }
-    """
-
-    num_obj_properties_a = 0
-
-    results = _send_query(query_object_properties_a, sparql, JSON)
-
-    for binding in results["results"]["bindings"]:
-        num_obj_properties_a = int(binding["numObjectProperties"]["value"])
-
-    num_obj_properties = num_obj_properties_t + num_obj_properties_a
 
     # Number of object properties explicitly declared in T-Box 
     # + predicates occurring in graph and connecting to a non-literal object
