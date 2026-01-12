@@ -335,6 +335,7 @@ def degree_variance_local(g: Graph, dec_places: int = 2) -> pd.DataFrame:
     ])
 
 def primitives_local(g: Graph, dec_places: int = 2) -> pd.DataFrame:
+    # TODO: update documentation
     """
     Calculates a set of primitive metrics (number of entities/properties/classes/instances/object properties) for a given RDF graph.
 
@@ -1223,7 +1224,8 @@ def _get_num_instances_ep_2(sparql: SPARQLWrapper) -> int:
 
     return num_instances
 
-def _get_num_properties_ep(sparql: SPARQLWrapper, calc_t: bool = True , calc_a: bool = True) -> tuple[int, int]:
+def _get_num_properties_ep(sparql: SPARQLWrapper, calc_t: bool = True , calc_a: bool = True) -> int:
+    # TODO: update documentation
     """
     Queries a SPARQL endpoint to count T-Box and A-Box properties.
 
@@ -1246,10 +1248,34 @@ def _get_num_properties_ep(sparql: SPARQLWrapper, calc_t: bool = True , calc_a: 
                          and A-Box properties `(num_properties_t, num_properties_a)`.
     """
     
-    num_properties_t = 0
-    num_properties_a = 0
+    num_properties = 0
 
-    if calc_t:
+    if calc_t and calc_a:
+        # number of properties in t-box AND predicates used in graph triples
+        # both count of properties in one query to avoid counting same property twice
+        query_properties = """
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+            SELECT (COUNT(DISTINCT ?p) AS ?propertyCount)
+            WHERE {
+                {
+                    ?s ?p ?o .
+                }
+                UNION
+                {
+                    VALUES ?type { owl:ObjectProperty owl:DatatypeProperty rdf:Property }
+                    ?p rdf:type ?type .
+                }
+            }
+        """
+
+        results = _send_query(query_properties, sparql, JSON)
+
+        for binding in results["results"]["bindings"]:
+            num_properties = int(binding["propertyCount"]["value"])
+
+    elif calc_t:
         # number of properties in T-Box
         # source says: property = explicitly defined property
         query_properties_t = """
@@ -1267,9 +1293,9 @@ def _get_num_properties_ep(sparql: SPARQLWrapper, calc_t: bool = True , calc_a: 
         #num_properties_t = 0
 
         for binding in results["results"]["bindings"]:
-            num_properties_t = int(binding["propertyCount"]["value"])
+            num_properties = int(binding["propertyCount"]["value"])
 
-    if calc_a:
+    elif calc_a:
         # number of properties in A-Box
         # source says: property = the unique ?p in ?s ?p ?o
         query_properties_a = """
@@ -1286,9 +1312,9 @@ def _get_num_properties_ep(sparql: SPARQLWrapper, calc_t: bool = True , calc_a: 
         #num_properties_a = 0
 
         for binding in results["results"]["bindings"]:
-            num_properties_a = int(binding["propertyCount"]["value"])
+            num_properties = int(binding["propertyCount"]["value"])
 
-    return (num_properties_t, num_properties_a)
+    return num_properties
 
 def paths_depth_endpoint(endpoint_url: str, default_graph: str | None = None, dec_places: int = 2) -> pd.DataFrame:
     """    
@@ -1830,6 +1856,7 @@ def degree_variance_endpoint(endpoint_url: str, default_graph: str | None = None
     ])
         
 def primitives_endpoint(endpoint_url: str, default_graph: str | None = None, dec_places: int = 2) -> pd.DataFrame:
+    # TODO: update documentation
     """
     Calculates a set of primitive metrics for a graph via a SPARQL endpoint.
 
@@ -1854,8 +1881,8 @@ def primitives_endpoint(endpoint_url: str, default_graph: str | None = None, dec
     """
 
     sparql = get_sparql_from_endpoint(endpoint_url, default_graph)
-    logging.basicConfig(level=logging.INFO)
-    logging.info("test")
+    # logging.basicConfig(level=logging.INFO)
+    # logging.info("test")
 
     # Calculating nG for checking default graph (otherwise calculation will get en error if given default graph IRI does not exist in endpoint) 
     query_nG = """
@@ -1924,9 +1951,10 @@ def primitives_endpoint(endpoint_url: str, default_graph: str | None = None, dec
 
     num_classes = len(classes)
 
-    (num_properties_t, num_properties_a) = _get_num_properties_ep(sparql)
+    # (num_properties_t, num_properties_a) = _get_num_properties_ep(sparql)
+    # num_properties = num_properties_t + num_properties_a
 
-    num_properties = num_properties_t + num_properties_a
+    num_properties = _get_num_properties_ep(sparql)
 
     # Number of object properties in T-Box
     # Non-Inheritance -> excluding inheritance properties like rdfs:subPropertyOf or rdfs:subClassOf
@@ -1968,6 +1996,32 @@ def primitives_endpoint(endpoint_url: str, default_graph: str | None = None, dec
         num_obj_properties_a = int(binding["numObjectProperties"]["value"])
 
     num_obj_properties = num_obj_properties_t + num_obj_properties_a
+
+    # Number of object properties explicitly declared in T-Box 
+    # + predicates occurring in graph and connecting to a non-literal object
+    query_object_properties = """
+        PREFIX owl: <http://www.w3.org/2002/07/owl#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+        SELECT (COUNT(DISTINCT ?property) AS ?numObjectProperties)
+        WHERE {
+            {
+                ?property rdf:type owl:ObjectProperty .
+            }
+            UNION
+            {
+                ?s ?property ?o .
+                FILTER(!isLiteral(?o))
+            }
+        }
+    """
+
+    num_obj_properties = 0
+
+    results = _send_query(query_object_properties, sparql, JSON)
+
+    for binding in results["results"]["bindings"]:
+        num_obj_properties = int(binding["numObjectProperties"]["value"])
 
     return pd.DataFrame([
         {"Metric": "Number of Entities",          "Value": int(num_entities)},
@@ -2336,10 +2390,12 @@ def tbox_endpoint(endpoint_url: str, default_graph: str | None = None, dec_place
 
     num_classes = len(classes)
 
-    (num_properties_t, _) = _get_num_properties_ep(sparql, True, False)
+    # (num_properties_t, _) = _get_num_properties_ep(sparql, True, False)
+    # # this function calculates metrics regarding T-Box --> we are only interested in T-Box properties
+    # num_properties = num_properties_t
 
     # this function calculates metrics regarding T-Box --> we are only interested in T-Box properties
-    num_properties = num_properties_t
+    num_properties = _get_num_properties_ep(sparql, True, False)
 
     # Property Class Ratio - Inheritance Richness - Attribute Richness
     if num_classes > 0:
