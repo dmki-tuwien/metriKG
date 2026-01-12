@@ -384,23 +384,27 @@ def primitives_local(g: Graph, dec_places: int = 2) -> pd.DataFrame:
 
     property_types = [OWL.ObjectProperty, OWL.DatatypeProperty, RDF.Property]
 
-    # Properties in T-Box
-    properties_t = set()
+    # TODO: do not forget to change it for endpoint too!
 
+    # Properties 
+    properties = set()
+
+    # Adding properties in T-Box
     for t in property_types:
         for s, p, o in g.triples((None, RDF.type, t)):
-            properties_t.add(s)
+            properties.add(s)
 
-    num_properties_t = len(properties_t)
+    # num_properties_t = len(properties_t)
 
-    # Properties in A-Box
-    # TODO: this takes predicates in WHOLE graph, so also T-Box predicates
-    properties_a = set(g.predicates())
+    # Adding properties in KG triples
+    # properties_a = set(g.predicates())
+    properties.update(g.predicates())
 
-    num_properties_a = len(properties_a)
+    # num_properties_a = len(properties_a)
 
-    num_properties = num_properties_t + num_properties_a
+    # num_properties = num_properties_t + num_properties_a
 
+    num_properties = len(properties)
 
     ### Instances ###
 
@@ -408,21 +412,30 @@ def primitives_local(g: Graph, dec_places: int = 2) -> pd.DataFrame:
 
     ### Object Properties ###
 
-    # Object Properties in T-Box
-    object_properties_t = set(g.subjects(RDF.type, OWL.ObjectProperty))
+    # Object Properties
+    object_properties = set()
 
-    num_obj_properties_t = len(object_properties_t)
+    # Add object properties in T-Box
+    object_properties.update(g.subjects(RDF.type, OWL.ObjectProperty))
 
-    # object Properties in A-Box
-    object_properties_a = set()
+    # #  in T-Box
+    # object_properties_t = set(g.subjects(RDF.type, OWL.ObjectProperty))
 
+    # num_obj_properties_t = len(object_properties_t)
+
+    # Object Properties in A-Box
+    # object_properties_a = set()
+
+    # Add Object Properties in KG triples
     for s, p, o in g:
         if not isinstance(o, Literal):  #if object is not a literal
-            object_properties_a.add(p)
+            object_properties.add(p)
 
-    num_obj_properties_a = len(object_properties_a)
+    # num_obj_properties_a = len(object_properties_a)
 
-    num_obj_properties = num_obj_properties_t + num_obj_properties_a
+    # num_obj_properties = num_obj_properties_t + num_obj_properties_a
+    
+    num_obj_properties = len(object_properties)
 
     return pd.DataFrame([
     {"Metric": "Number of Entities",          "Value": int(num_entities)},
