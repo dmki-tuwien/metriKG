@@ -380,7 +380,9 @@ def primitives_local(g: Graph, dec_places: int = 2) -> pd.DataFrame:
 
     ### Properties ###
 
-    property_types = [OWL.ObjectProperty, OWL.DatatypeProperty, OWL.AnnotationProperty]
+    # property_types = [OWL.ObjectProperty, OWL.DatatypeProperty, OWL.AnnotationProperty]
+
+    property_types = [OWL.ObjectProperty, OWL.DatatypeProperty, RDF.Property]
 
     # Properties in T-Box
     properties_t = set()
@@ -575,7 +577,6 @@ def tbox_local(g: Graph, dec_places: int = 2) -> pd.DataFrame:
     subclass_triples = list(g.triples((None, RDFS.subClassOf, None)))
     num_subclasses = len(subclass_triples)
 
-    # TODO: add RDF.Property??
     property_types = [OWL.ObjectProperty, OWL.DatatypeProperty, RDF.Property]
 
     # Properties in T-Box
@@ -1243,7 +1244,7 @@ def _get_num_properties_ep(sparql: SPARQLWrapper, calc_t: bool = True , calc_a: 
             PREFIX owl: <http://www.w3.org/2002/07/owl#>
             SELECT (COUNT(DISTINCT ?property) AS ?propertyCount)
             WHERE {
-                VALUES ?type { owl:ObjectProperty owl:DatatypeProperty owl:AnnotationProperty }
+                VALUES ?type { owl:ObjectProperty owl:DatatypeProperty rdf:Property }
                 ?property rdf:type ?type .
             }
         """
