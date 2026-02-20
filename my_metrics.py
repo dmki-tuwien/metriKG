@@ -72,10 +72,10 @@ def _get_num_instances_local(g: Graph) -> int:
     Calculates the number of instance resources (ABox individuals) 
     in a local RDF graph.
 
-    This function identifies all resources that appear as the subject 
-    in an `rdf:type` triple. To ensure that only true individuals (ABox 
-    resources) are counted, the function excludes all resources that also appear 
-    as objects of an `rdf:type` triple, since those represent classes (TBox elements).
+    The function collects all resources that occur as the subject of an `rdf:type`
+    statement and excludes resources that are identified as class/class-expression
+    candidates (via `_get_classes_local`). The remaining resources are counted as
+    individuals.
 
     The resulting number reflects the total count of RDF resources 
     that are explicitly used as instances but not as classes within the graph.
@@ -89,8 +89,6 @@ def _get_num_instances_local(g: Graph) -> int:
     num_instances = 0
 
     instances = {s for s in g.subjects(RDF.type, None)}
-
-    #classes = {o for o in g.objects(None, RDF.type)}
 
     classes = _get_classes_local(g)
 
@@ -204,14 +202,6 @@ def paths_depth_local(g: Graph, dec_places: int = 2) -> pd.DataFrame:
         # remove node from the path to find next path
         path.pop()
 
-    # classes = _get_classes_local(g)
-    
-    # # owl_classes  = set(g.subjects(RDF.type, OWL.Class))
-    # # rdfs_classes = set(g.subjects(RDF.type, RDFS.Class))
-    # # classes = owl_classes | rdfs_classes    
-    
-    # roots = [c for c in classes if not any(True for _ in g.objects(c, RDFS.subClassOf))]
-
     all_nodes = set(g.subjects()) | set(g.objects()) 
     object_nodes = set(g.objects()) 
     roots = all_nodes - object_nodes
@@ -274,18 +264,20 @@ def ont_tangledness_local(g: Graph, dec_places: int = 2) -> pd.DataFrame:
 
 def degree_variance_local(g: Graph, dec_places: int = 2) -> pd.DataFrame:
     """
-    Calculates the degree variance of a given RDF graph.
+    Computes the variance of the (undirected) degree distribution of an RDF graph.
 
-    The degree variance is computed as the variance of the degree distribution,
-    where the degree of a node is the sum of its incoming and outgoing edges. It quantifies 
-    how unevenly the connections (edges) in a graph are distributed among its nodes.
-    The result is returned as a pandas DataFrame containing the metric name and its value.
+    Each triple is treated as a directed edge from subject to object. For each node,
+    the degree is defined as in-degree + out-degree (i.e., every triple contributes
+    +1 to the subject and +1 to the object). The mean degree is computed as:
 
-    First, the mean degree μ is computed as (2 x number of edges) / (number of nodes),
-    since each edge contributes to two node degrees. The variance is then obtained by
-    averaging the squared deviations of all node degrees from this mean:
-        Var(d) = Σ((dᵢ - μ)²) / (nG - 1)
-    where dᵢ is the degree of node i and nG the number of nodes.
+        μ = (2 * nE) / nG
+
+    where nE is the number of triples (edges) and nG is the number of distinct nodes
+    occurring as subject or object.
+
+    The metric then returns the *sample variance* of node degrees:
+
+        Var(d) = Σ (dᵢ - μ)² / (nG - 1)    (for nG > 1)
 
     A higher degree variance indicates that some nodes are much more connected than others 
     (less uniform structure), while a lower variance means the graph's connectivity is more balanced.
@@ -321,7 +313,7 @@ def degree_variance_local(g: Graph, dec_places: int = 2) -> pd.DataFrame:
     if nG > 1:
         mean_degree = (2 * nE) / nG
         squared_diffs = [(deg_v - mean_degree) ** 2 for _,deg_v in degree_counts.items()]
-        degree_variance = round(sum(squared_diffs) / (nG-1), 2)
+        degree_variance = round(sum(squared_diffs) / (nG-1), dec_places)
     else:
         degree_variance = 0.0 
 
@@ -330,23 +322,25 @@ def degree_variance_local(g: Graph, dec_places: int = 2) -> pd.DataFrame:
     ])
 
 def primitives_local(g: Graph, dec_places: int = 2) -> pd.DataFrame:
-    # TODO: update documentation
     """
-    Calculates a set of primitive metrics (number of entities/properties/classes/instances/object properties) for a given RDF graph.
+    Calculates primitive count metrics for a given RDF graph.
 
-    The metrics are calculated as follows:
-    - **Number of Entities**: The total count of unique resources (URIs and BNodes) that appear
-      as a subject or a non-literal object in any triple. 
-    - **Number of Properties**: The sum of two counts:
-      1.  Properties explicitly declared as `owl:ObjectProperty`, `owl:DatatypeProperty`, or `owl:AnnotationProperty` (T-Box).
-      2.  All unique predicates used in the graph (A-Box). 
-    - **Number of Classes**: The count of unique classes identified by the `_get_classes_local` helper function.
-    - **Number of Instances**:  Count of all individual instances in the graph.  Specifically, this is the number of unique 
-      subjects in triples of the form `(s, rdf:type, o)` where `s` is not itself a class. In other words, classes (`rdf:type` objects) 
-      are excluded from the count to ensure only individuals are counted.
-    - **Number of Object Properties**: The sum of two counts:
-      1.  Properties explicitly declared as `owl:ObjectProperty` (T-Box).
-      2.  All unique predicates in the rdf triples that have a non-literal as an object (A-Box).
+    Metrics computed:
+    - Number of Entities:
+      Count of distinct resources (subjects and non-literal objects) occurring in the graph.
+    - Number of Properties:
+      Count of distinct properties collected as the union of:
+        1.  properties explicitly typed as OWL.ObjectProperty, OWL.DatatypeProperty, or RDF.Property, and
+        2.  all distinct predicates used in any triple.
+    - Number of Classes:
+      Count of class/class-expression candidates returned by `_get_classes_local(g)`.
+    - Number of Instances:
+      Count of individual candidates returned by `_get_num_instances_local(g)` (typed subjects with
+      class candidates removed via `_get_classes_local`).
+    - Number of Object Properties:
+      Count of distinct properties collected as the union of:
+        1.  properties explicitly typed as OWL.ObjectProperty, and
+        2.  predicates from triples whose object is not a literal.
 
     Args:
         g (Graph): An RDF graph object containing triples (subject, predicate, object).
@@ -376,8 +370,6 @@ def primitives_local(g: Graph, dec_places: int = 2) -> pd.DataFrame:
 
     ### Properties ###
 
-    # property_types = [OWL.ObjectProperty, OWL.DatatypeProperty, OWL.AnnotationProperty]
-
     property_types = [OWL.ObjectProperty, OWL.DatatypeProperty, RDF.Property]
 
     # TODO: do not forget to change it for endpoint too!
@@ -390,15 +382,8 @@ def primitives_local(g: Graph, dec_places: int = 2) -> pd.DataFrame:
         for s, p, o in g.triples((None, RDF.type, t)):
             properties.add(s)
 
-    # num_properties_t = len(properties_t)
-
     # Adding properties in KG triples
-    # properties_a = set(g.predicates())
     properties.update(g.predicates())
-
-    # num_properties_a = len(properties_a)
-
-    # num_properties = num_properties_t + num_properties_a
 
     num_properties = len(properties)
 
@@ -414,22 +399,10 @@ def primitives_local(g: Graph, dec_places: int = 2) -> pd.DataFrame:
     # Add object properties in T-Box
     object_properties.update(g.subjects(RDF.type, OWL.ObjectProperty))
 
-    # #  in T-Box
-    # object_properties_t = set(g.subjects(RDF.type, OWL.ObjectProperty))
-
-    # num_obj_properties_t = len(object_properties_t)
-
-    # Object Properties in A-Box
-    # object_properties_a = set()
-
     # Add Object Properties in KG triples
     for s, p, o in g:
         if not isinstance(o, Literal):  #if object is not a literal
             object_properties.add(p)
-
-    # num_obj_properties_a = len(object_properties_a)
-
-    # num_obj_properties = num_obj_properties_t + num_obj_properties_a
     
     num_obj_properties = len(object_properties)
 
@@ -482,12 +455,12 @@ def depth_of_inh_tree_local(g: Graph, dec_places: int = 2) -> pd.DataFrame:
             set: A set of URIRefs representing the root classes of the
                     inheritance hierarchies.
         """
-        # 1) all objects which are explicitly named classes
+        # 1. all objects which are explicitly named classes
         owl_classes  = set(g.subjects(RDF.type, OWL.Class))
         rdfs_classes = set(g.subjects(RDF.type, RDFS.Class))
         classes = owl_classes | rdfs_classes
 
-        # 2) FILTER NOT EXISTS { ?root rdfs:subClassOf ?anyClass }
+        # 2. FILTER NOT EXISTS { ?root rdfs:subClassOf ?anyClass }
         roots = {c for c in classes if not any(g.triples((c, RDFS.subClassOf, None)))}
 
         return roots
@@ -562,7 +535,7 @@ def tbox_local(g: Graph, dec_places: int = 2) -> pd.DataFrame:
 
     The metrics are calculated as follows:
     - **Property Class Ratio**: The ratio of explicitly declared T-Box properties (`owl:ObjectProperty`, 
-      `owl:DatatypeProperty`, `owl:AnnotationProperty`) to the total number of classes.
+      `owl:DatatypeProperty`, `RDF.Property`) to the total number of classes.
       This metric indicates the average number of properties per class.
     - **Class Property Ratio**: The inverse of the Property Class Ratio, showing the ratio of classes to properties.
     - **Inheritance Richness**: The ratio of the number of subclass relationships (`rdfs:subClassOf`) to the
@@ -611,7 +584,7 @@ def tbox_local(g: Graph, dec_places: int = 2) -> pd.DataFrame:
         attr_richness = round(num_datatype_properties / num_classes, dec_places)
 
     else:
-    # source 172 - page: assumes that classes must exist for properties to exist (Number of Properties, Number of CLasses > 1)
+    # source 172: assumes that classes must exist for properties to exist (Number of Properties, Number of CLasses > 1)
     # I assume: no classes -> ratio = 0
         prop_class_ratio = 0.0
         inheritance_richness = 0.0
@@ -767,12 +740,11 @@ def cohesion_local(g: Graph, dec_places: int = 2) -> pd.DataFrame:
         nonlocal all_nodes
         nonlocal visited
 
-        # TODO: ich denke das nachschauen im cache is unnötig -> wenn cache eintrag existiert -> return set() !
         if node in neighbors_cache:
             return neighbors_cache[node]
 
         # neighbors as a set is okay because we just want to get all neighbors which can be reached from node
-        # --> we do not have to store howe many times a neighbor can be visited from a node --> set is enough
+        # --> we do not have to store how many times a neighbor can be visited from a node --> set is enough
         neighbors = set()
 
         # ingoing: ?s ?p node
@@ -864,43 +836,6 @@ def cohesion_local(g: Graph, dec_places: int = 2) -> pd.DataFrame:
 
 ############## ENDPOINT FUNCTIONS ##############
 
-
-# def _get_sparql_from_endpoint(endpoint_url: str, default_graph: str = None):
-#     """
-#     Initializes and configures a SPARQLWrapper instance for a given endpoint.
-
-#     This helper function creates a SPARQLWrapper object, optionally sets a default
-#     graph for the queries, and sets the default return format to JSON.
-
-#     Args:
-#         endpoint_url (str): The URL of the SPARQL endpoint to connect to.
-#         default_graph (str, optional): The URI of the default graph to be used
-#                                        for queries. If None, no default graph
-#                                        is set. Defaults to None.
-
-#     Returns:
-#         SPARQLWrapper: A configured SPARQLWrapper instance ready to be used for
-#                        executing queries.
-
-#     Raises:
-#         ConnectionError: If the SPARQLWrapper instance cannot be initialized, e.g.,
-#                          due to an invalid endpoint URL, network issue, or
-#                          misconfiguration.
-#     """
-    
-#     try:
-#         sparql = SPARQLWrapper(endpoint_url)
-        
-#         if default_graph:
-#             sparql.addDefaultGraph(default_graph)
-        
-#         sparql.setReturnFormat(JSON)
-        
-#         return sparql
-    
-#     except Exception as e:
-#         raise ConnectionError(f"Failed to initialize SPARQL endpoint: {e}")
-
 def _send_query(query: str, sparql: SPARQLWrapper, retfmt=JSON):
     """
     Executes a SPARQL query against a configured endpoint and returns the result.
@@ -937,95 +872,9 @@ def _send_query(query: str, sparql: SPARQLWrapper, retfmt=JSON):
         return res
     
     except Exception as e:
-        #raise RuntimeError(f"Endpoint-Error: {e}\nQuery:\n{query}") from e
-        #error_message = f"Endpoint-Error: {str(e)}. Query:\n{query}"
         raise e
-        #raise RuntimeError(error_message) 
 
 
-def _get_num_classes_ep(sparql: SPARQLWrapper) -> int:
-    """
-    Queries a SPARQL endpoint to count the total number of unique classes.
-
-    This function uses a SPARQL query to identify and count all
-    distinct classes based on some criteria. A class can be:
-
-    1.  Any resource that is the object of +an `rdf:type` triple.
-    2.  Both the subject and object of an `rdfs:subClassOf` triple.
-    3.  Both the subject and object of an `owl:equivalentClass` triple.
-    4.  The subject of a triple declaring an `owl:Restriction`.
-    5.  The subject of complex class definitions using `owl:unionOf`, 
-        `owl:intersectionOf`, `owl:complementOf`, or `owl:oneOf`.
-    6.  The subject of an `owl:hasValue` restriction.
-
-    Args:
-        sparql (SPARQLWrapper): A configured SPARQLWrapper instance 
-
-    Returns:
-        int: The total number of unique classes found in the endpoint.
-    """
-    
-    # Defintion of Class: 
-    # source: 213, page: 5 - source 250, page 3
-    # TNOC (total number of classes/concepts) = classes, subclasses, superclasses, anonymous classes
-    # anonymous classes = equivalent/restriction/unionOf/intersectionOf/complementOf/oneOf/hasValue classes
-    query_classes = """
-        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-        PREFIX owl: <http://www.w3.org/2002/07/owl#>
-
-        SELECT (COUNT(DISTINCT ?class) AS ?num_classes)
-        WHERE {
-            {
-                # 1. explicitly/implicitly used RDF classes
-                # explicitly: ?class a owl:Class . or ?class a rdfs:Class .
-                # implicitly: ?any rdf:type ?class . (includes also explicitly used classes)
-
-                ?any rdf:type ?class .
-            }
-        UNION
-            {
-                # 2. subclasses
-                ?class rdfs:subClassOf ?any .
-            }
-        UNION
-            {
-                # 3. superclasses
-                ?any rdfs:subClassOf ?class .
-            }
-        UNION
-            {
-                # 4. classes used with owl:equivalentClass
-                { ?class owl:equivalentClass ?any . }
-                UNION
-                { ?any owl:equivalentClass ?class . }
-            }
-        UNION
-            {
-                # 5. OWL restriction classes
-                ?class a owl:Restriction .
-            }
-        UNION
-            {
-                # 6. complex classes with using unionOf, intersectionOf etc.
-                ?class owl:unionOf|owl:intersectionOf|owl:complementOf|owl:oneOf ?list .
-            }
-        UNION
-            {
-                # 7. OWL hasValue restrictions
-                ?class owl:hasValue ?val .
-            }
-        }  
-    """
-
-    results = _send_query(query_classes, sparql, JSON)
-
-    num_classes = 0
-
-    for binding in results["results"]["bindings"]:
-        num_classes = int(binding["num_classes"]["value"])
-
-    return num_classes
 
 def _get_classes_ep(sparql: SPARQLWrapper):
     """
@@ -1104,15 +953,11 @@ def _get_classes_ep(sparql: SPARQLWrapper):
 
     results = _send_query(query_classes, sparql, JSON)
 
-    # num_classes = 0
-
     classes = set()
 
     for binding in results["results"]["bindings"]:
-        # num_classes = int(binding["num_classes"]["value"])
         classes.add(binding["class"]["value"])
 
-    # return num_classes
     return classes
 
 def _get_num_instances_ep(sparql: SPARQLWrapper) -> int:
@@ -1166,6 +1011,7 @@ def _get_num_instances_ep(sparql: SPARQLWrapper) -> int:
 
     return num_instances
 
+# unused
 def _get_num_instances_ep_2(sparql: SPARQLWrapper) -> int:
     """
     Retrieves and counts the number of instance resources (ABox individuals) 
@@ -1220,27 +1066,26 @@ def _get_num_instances_ep_2(sparql: SPARQLWrapper) -> int:
     return num_instances
 
 def _get_num_properties_ep(sparql: SPARQLWrapper, calc_t: bool = True , calc_a: bool = True) -> int:
-    # TODO: update documentation
     """
-    Queries a SPARQL endpoint to count T-Box and A-Box properties.
+    Counts distinct properties via a SPARQL endpoint, with optional T-Box/A-Box scope.
 
-    This function can calculate two types of property counts:
-    1.  T-Box Properties (`calc_t=True`): Counts properties that are explicitly
-        declared as `owl:ObjectProperty`, `owl:DatatypeProperty`, or
-        `owl:AnnotationProperty`.
-    2.  A-Box Properties (`calc_a=True`): Counts all unique predicates that
-        are used in any triple in the graph.
+    Depending on the flags, the function returns a single property count:
+    - T-Box only (`calc_t=True, calc_a=False`):
+      counts distinct properties explicitly typed as
+      `owl:ObjectProperty`, `owl:DatatypeProperty`, or `rdf:Property`.
+    - A-Box only (`calc_t=False, calc_a=True`):
+      counts distinct predicates used in triples (`?s ?p ?o`).
+    - Combined (`calc_t=True, calc_a=True`):
+      counts the distinct union of both sets in a single query (so overlapping
+      properties are counted only once).
 
     Args:
-        sparql (SPARQLWrapper): A configured SPARQLWrapper instance.
-        calc_t (bool, optional): Whether to calculate T-Box properties.
-                                 Defaults to True.
-        calc_a (bool, optional): Whether to calculate A-Box properties.
-                                 Defaults to True.
+        sparql (SPARQLWrapper): Configured SPARQL endpoint connection.
+        calc_t (bool, optional): Include T-Box-style typed properties. Defaults to True.
+        calc_a (bool, optional): Include predicates used in graph triples. Defaults to True.
 
     Returns:
-        tuple[int, int]: A tuple containing the count of T-Box properties
-                         and A-Box properties `(num_properties_t, num_properties_a)`.
+        int: Distinct property count for the selected scope.
     """
     
     num_properties = 0
@@ -1581,7 +1426,6 @@ def paths_depth_endpoint(endpoint_url: str, default_graph: str | None = None, de
                     elif datatype:  # add datatype tag
                         value = f"{value}^^{datatype}"
 
-                #neighbors.append((value, value_type))
                 neighbors.append((value, value_type, lang_tag, datatype))
 
             # checking for bnode neighbors
@@ -1697,8 +1541,6 @@ def ont_tangledness_endpoint(endpoint_url: str, default_graph: str | None = None
 
     sparql = get_sparql_from_endpoint(endpoint_url, default_graph)
 
-    # num_classes = _get_num_classes_ep(sparql)
-
     classes = _get_classes_ep(sparql)
 
     num_classes = len(classes)
@@ -1729,7 +1571,6 @@ def ont_tangledness_endpoint(endpoint_url: str, default_graph: str | None = None
 
     if t > 0:
         # source 37 says num_classes / t
-        # source 73 says denominator and numerator should be switched -> t / num_classes
         ont_tangledness = round(num_classes / t, dec_places) 
     else:
         ont_tangledness = 0.0
@@ -1746,7 +1587,8 @@ def degree_variance_endpoint(endpoint_url: str, default_graph: str | None = None
     where the degree of a node is the sum of its incoming and outgoing edges.
     This function executes several SPARQL queries to get the total number of
     edges (nE), the total number of nodes (nG), and the degree of each node.
-    The result is returned as a pandas DataFrame.
+    The result is returned as a pandas DataFrame. (for more details, look at 
+    local version of this function)
 
     Args:
         endpoint_url (str): The URL of the SPARQL endpoint.
@@ -1842,7 +1684,7 @@ def degree_variance_endpoint(endpoint_url: str, default_graph: str | None = None
     if nG > 1:
         mean_degree = (2 * nE) / nG
         squared_diffs = [(deg_v - mean_degree) ** 2 for _,deg_v in degrees]
-        degree_variance = round(sum(squared_diffs) / (nG-1), 2)
+        degree_variance = round(sum(squared_diffs) / (nG-1), dec_places)
     else:
         degree_variance = 0.0 
 
@@ -1851,15 +1693,14 @@ def degree_variance_endpoint(endpoint_url: str, default_graph: str | None = None
     ])
         
 def primitives_endpoint(endpoint_url: str, default_graph: str | None = None, dec_places: int = 2) -> pd.DataFrame:
-    # TODO: update documentation
     """
     Calculates a set of primitive metrics for a graph via a SPARQL endpoint.
 
     The metrics are calculated by executing multiple SPARQL queries:
     - **Number of Entities**: The total count of unique resources (URIs and BNodes) that appear
       as a subject or a non-literal object in any triple.
-    - **Number of Properties**: The sum of two counts from the `_get_num_properties_ep` helper function:
-    - **Number of Classes**: The count of unique classes from the `_get_num_classes_ep` helper function.
+    - **Number of Properties**: Distinct property count returned by `_get_num_properties_ep`.
+    - **Number of Classes**:  Count of class/class-expression candidates returned by `_get_classes_ep`.
     - **Number of Instances**: The total number of individuals from the `_get_num_instances_ep` helper function.
     - **Number of Object Properties**: The sum of two counts:
       1.  T-Box: Properties explicitly declared as `owl:ObjectProperty`.
@@ -1938,14 +1779,9 @@ def primitives_endpoint(endpoint_url: str, default_graph: str | None = None, dec
 
     num_instances = _get_num_instances_ep(sparql)
 
-    # num_classes = _get_num_classes_ep(sparql)
-
     classes = _get_classes_ep(sparql)
 
     num_classes = len(classes)
-
-    # (num_properties_t, num_properties_a) = _get_num_properties_ep(sparql)
-    # num_properties = num_properties_t + num_properties_a
 
     num_properties = _get_num_properties_ep(sparql)
 
@@ -2270,7 +2106,6 @@ def depth_of_inh_tree_endpoint(endpoint_url: str, default_graph: str | None = No
         {"Metric": "Depth of Inheritance Tree", "Value": int(max_depth_inh_tree)},
     ])
 
-
 def tbox_endpoint(endpoint_url: str, default_graph: str | None = None, dec_places: int = 2) -> pd.DataFrame:
     """
     Calculates T-Box (Terminological Box) metrics for a graph via a SPARQL endpoint 
@@ -2336,15 +2171,9 @@ def tbox_endpoint(endpoint_url: str, default_graph: str | None = None, dec_place
     # this function calculates metrics regarding T-Box --> we are only interested in T-Box properties
     num_datatype_properties = num_datatype_properties_t
 
-    # num_classes = _get_num_classes_ep(sparql)
-
     classes = _get_classes_ep(sparql)
 
     num_classes = len(classes)
-
-    # (num_properties_t, _) = _get_num_properties_ep(sparql, True, False)
-    # # this function calculates metrics regarding T-Box --> we are only interested in T-Box properties
-    # num_properties = num_properties_t
 
     # this function calculates metrics regarding T-Box --> we are only interested in T-Box properties
     num_properties = _get_num_properties_ep(sparql, True, False)
@@ -2391,7 +2220,7 @@ def abox_endpoint(endpoint_url: str, default_graph: str | None = None, dec_place
       across all classes.
     - **Average Population**: The average number of instances per class. It is
       calculated by dividing the total number of individuals from the `_get_num_instances_ep` function
-      by the total number of classes (from `_get_num_classes_ep`).
+      by the total number of classes (from `_get_classes_ep`).
 
     The function handles division-by-zero cases by returning 0 if no classes are present.
 
@@ -2405,8 +2234,6 @@ def abox_endpoint(endpoint_url: str, default_graph: str | None = None, dec_place
     """
 
     sparql = get_sparql_from_endpoint(endpoint_url, default_graph)
-
-    # num_classes = _get_num_classes_ep(sparql)
 
     classes = _get_classes_ep(sparql)
 
@@ -2584,14 +2411,12 @@ def cohesion_endpoint(endpoint_url: str, default_graph: str | None = None, dec_p
 
         (node_value, node_type, _, _) = node 
 
-        # TODO: ich denke das nachschauen im cache is unnötig -> wenn cache eintrag existiert -> return set() !
         # Check if node is in cache
         if node in neighbors_cache:
             return neighbors_cache[node]
         
         
         if node_type in ["literal", "typed-literal"]:
-            #node = (node_value, node_type, lang_tag, datatype)
             
             for literal, neighbor in literal_neighbors:
                 # check if literal == literal we are searching neighbors for
@@ -2612,12 +2437,9 @@ def cohesion_endpoint(endpoint_url: str, default_graph: str | None = None, dec_p
             
             # we can directly look at the bnode_neighbors set
             for bnode, neighbor in bnode_neighbors:
-                #(bnode_value, _, _, _) = bnode
-                #(neighbor_val, _, _, _) = neighbor
 
                 # check if bnode == bnode we are searching neighbors for
                 if bnode == node:
-                    #(neighbor_val, _, _, _) = neighbor
 
                     # check if neighbors has not been visited yet
                     if ((neighbor in all_nodes) and (neighbor not in visited)):
@@ -2628,13 +2450,9 @@ def cohesion_endpoint(endpoint_url: str, default_graph: str | None = None, dec_p
                             f"Neighbor {neighbor} (from outgoing edge) not found in all_nodes. "
                             f"This may indicate an incomplete or inconsistent RDF graph."
                         )   
-        
-        # TODO: ich denke ich sollte das hier so umändern, dass literal_neighbors bei uri nodes verwendet wird!
 
         # in this case, node is of type uri 
         else:
-
-            #node = (node_value, node_type, lang_tag, datatype)
 
             # looking for non-Bnode neighbors, Bnode neighbors will be handled afterwards
             query = f"""
@@ -2654,7 +2472,6 @@ def cohesion_endpoint(endpoint_url: str, default_graph: str | None = None, dec_p
                 pot_new_ngh_type = pot_new_ngh_obj["type"]
                 # i know lang_tag & datatype will be None, but using get function is important for variable types!!
                 pot_new_ngh = pot_new_ngh_val, pot_new_ngh_type, pot_new_ngh_obj.get("xml:lang"), pot_new_ngh_obj.get("datatype")
-                #debug_print("Got neighbor: " + str(pot_new_ngh_val))
                 
                 if ((pot_new_ngh in all_nodes) and (pot_new_ngh not in visited)):
                     neighbors.add(pot_new_ngh)
@@ -2667,8 +2484,6 @@ def cohesion_endpoint(endpoint_url: str, default_graph: str | None = None, dec_p
                         ) 
                 
             for bnode, neighbor in bnode_neighbors:
-                #(bnode_value, _, _, _) = bnode
-                #(neighbor_val, _, _, _) = neighbor
 
                 # check if uri == uri we are searching neighbors for
                 if neighbor == node:
@@ -2766,31 +2581,6 @@ def cohesion_endpoint(endpoint_url: str, default_graph: str | None = None, dec_p
             # bnode_neighbors.add((lit, neighbor))
             literal_neighbors.add((lit, neighbor))
 
-    # # had to do it that way because:
-    # # 1) looking at neighbors of one literal directly can be complicated because of
-    # # possible language tags or datatype tags
-    # # 2) literal strings can be very long and full with new lines etc. -> some endpoints
-    # # do not accept the query then
-    # # -> so i have to ask for every literal so that the endpoint gives me the literals
-    # query_literal_neighbors = """
-    #     SELECT DISTINCT ?literal ?neighbor 
-    #     WHERE {
-    #             ?neighbor ?p ?literal .
-    #             FILTER(isLiteral(?literal))
-    #             FILTER(!isBlank(?neighbor))
-    #     }
-    # """
-    # results = _send_query(query_literal_neighbors, sparql, JSON)
-
-    # for binding in results["results"]["bindings"]:
-    #     lit_obj = binding["literal"]
-    #     ngh_obj = binding["neighbor"]
-
-    #     lit = (lit_obj["value"], lit_obj["type"], lit_obj.get("xml:lang"), lit_obj.get("datatype"))
-    #     neighbor = (ngh_obj["value"], ngh_obj["type"], ngh_obj.get("xml:lang"), ngh_obj.get("datatype"))
-
-    #     literal_neighbors.add((lit, neighbor))
-
     # describes number of independent components of graph (like subgraphs which are connected internally)
     components = 0
 
@@ -2833,7 +2623,6 @@ def cohesion_endpoint(endpoint_url: str, default_graph: str | None = None, dec_p
                     break
 
                 new_frontier |= new_visited_neighbors
-            
 
             if visited == all_nodes:
                 break
