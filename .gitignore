@@ -4,8 +4,8 @@
 # only track the following files
 !.gitignore
 !README.md
-!app.py
-!app2.py
+!app_v1.py
+!app_v2.py
 !graph_loader.py
 !my_metrics.py
 !nb_endpoint.ipynb
