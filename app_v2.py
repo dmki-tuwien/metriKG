@@ -321,9 +321,9 @@ METRIC_HELP_ENDPOINT = {
                     "**Number of Classes** ([Reference](https://ieeexplore.ieee.org/document/4031647)):  \n &nbsp;&nbsp;&nbsp;&nbsp; The count of classes. The criteria for identifiying a class:  \n"
                     "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1.  Any resource that is the object of an `rdf:type` triple.  \n"
                     "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2.  Both the subject and object of an `rdfs:subClassOf` / `owl:equivalentClass` triple.  \n"
-                    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 3. The subject of a triple declaring an `owl:Restriction`.  \n"
+                    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 3.  The subject of a triple declaring an `owl:Restriction`.  \n"
                     "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4.  The subject of complex class definitions using `owl:unionOf`, `owl:intersectionOf`, `owl:complementOf` or `owl:oneOf`.  \n"
-                    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 5. The subject of an `owl:hasValue` restriction.  \n\n"
+                    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 5.  The subject of an `owl:hasValue` restriction.  \n\n"
                     
                     "**Number of Instances** ([Reference](https://link.springer.com/chapter/10.1007/978-90-481-8847-5_5)):  \n &nbsp;&nbsp;&nbsp;&nbsp;" 
                     "Count of all individual instances in the graph.  Specifically, this is the number of unique subjects in triples of the form `(s, rdf:type, o)` "

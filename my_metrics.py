@@ -965,66 +965,11 @@ def _get_num_instances_ep(sparql: SPARQLWrapper) -> int:
     Retrieves and counts the number of instance resources (ABox individuals) 
     in an RDF graph accessible through a SPARQL endpoint.
 
-    This function queries the endpoint for all triples of the form 
-    `?s rdf:type ?type` to identify resources that are explicitly declared 
-    as instances of some class. It then distinguishes between classes 
-    (objects of `rdf:type` statements) and instances (subjects of such statements).
+    Counts instance candidates in an RDF graph accessible through a SPARQL endpoint.
 
-    To ensure that only true ABox individuals are counted (and not classes that 
-    also appear as instances), the function subtracts the set of classes from 
-    the set of all subjects.
-
-    The result corresponds to the total number of entities that appear as 
-    instances but not as classes within the RDF graph.
-
-    Args:
-        sparql (SPARQLWrapper):  A configured SPARQLWrapper instance.
-
-    Returns:
-        int: The number of unique instances (individuals) in the graph. 
-    """
-    query_inst = """ 
-        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        SELECT DISTINCT ?s ?type
-        WHERE {
-            ?s rdf:type ?type . 
-        }
-    """
-
-    results = _send_query(query_inst, sparql, JSON)
-    
-    num_instances = 0
-
-    instances = set()
-    classes = set()
-
-    for binding in results["results"]["bindings"]:
-        rdf_class = binding["type"]["value"]
-        instance = binding["s"]["value"]
-
-        classes.add(rdf_class)
-        instances.add(instance)
-
-    indidivuals = instances - classes
-
-    num_instances = len(indidivuals)
-
-    return num_instances
-
-# unused
-def _get_num_instances_ep_2(sparql: SPARQLWrapper) -> int:
-    """
-    Retrieves and counts the number of instance resources (ABox individuals) 
-    in an RDF graph accessible through a SPARQL endpoint.
-
-    This function queries the endpoint for all triples of the form 
-    `?s rdf:type ?type` to identify resources that are explicitly declared 
-    as instances of some class. It then distinguishes between classes 
-    (objects of `rdf:type` statements) and instances (subjects of such statements).
-
-    To ensure that only true ABox individuals are counted (and not classes that 
-    also appear as instances), the function subtracts the set of classes from 
-    the set of all subjects.
+    The function retrieves all subjects that occur in `rdf:type` statements and
+    removes resources identified as class/class-expression candidates via
+    `_get_classes_ep(sparql)`. The remaining resources are counted as individuals.
 
     The result corresponds to the total number of entities that appear as 
     instances but not as classes within the RDF graph.
@@ -1048,13 +993,10 @@ def _get_num_instances_ep_2(sparql: SPARQLWrapper) -> int:
     num_instances = 0
 
     instances = set()
-    # classes = set()
 
     for binding in results["results"]["bindings"]:
-        # rdf_class = binding["type"]["value"]
         instance = binding["s"]["value"]
 
-        # classes.add(rdf_class)
         instances.add(instance)
 
     classes = _get_classes_ep(sparql)
@@ -1777,7 +1719,7 @@ def primitives_endpoint(endpoint_url: str, default_graph: str | None = None, dec
     for binding in results["results"]["bindings"]:
         num_entities = int(binding["entityCount"]["value"])
 
-    num_instances = _get_num_instances_ep_2(sparql)
+    num_instances = _get_num_instances_ep(sparql)
 
     classes = _get_classes_ep(sparql)
 
@@ -2246,7 +2188,7 @@ def abox_endpoint(endpoint_url: str, default_graph: str | None = None, dec_place
             {"Metric": "Average Population", "Value": 0},
         ])
 
-    num_instances = _get_num_instances_ep_2(sparql)
+    num_instances = _get_num_instances_ep(sparql)
 
     # Average Class Connectivity
     # Connectivity of a class is defined as the total number of relationships instances of 
