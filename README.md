@@ -46,12 +46,9 @@ It was developed as part of a Bachelor's thesis at **TU Wien (Vienna University 
 
 Start the web interface using Streamlit:
 
-    streamlit run app.py
+    streamlit run app_v2.py
 
-If you want to run the version with the visualization possiblity, then run:
-
-    streamlit run app2.py
-
+`app_v1.py` is just the first version of the tool, which does not contain the visualization component.
 
 By default, the tool will be accessible at: [http://localhost:8501](http://localhost:8501)
 
@@ -61,6 +58,8 @@ To **stop** the application, press **Ctrl + C** in the terminal.
 
 ## Usage
 
+### Metric Computation Component
+
 1. Upload an **RDF file** or provide a **SPARQL endpoint URL** (optionally specify a **Default Graph**).
 
 2. Select the desired **metrics** to compute.
@@ -68,3 +67,9 @@ To **stop** the application, press **Ctrl + C** in the terminal.
 3. Click **Calculate** to start the evaluation.
 
 4. The **results** will be displayed as a **table** below the Calculate button.
+
+### Metric History Visualization
+
+1. Upload a **CSV file** conatining timestamped metric values. The plot will appear automatically then.
+
+2. Select the desired **metric** to be visualized.
