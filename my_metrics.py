@@ -1777,7 +1777,7 @@ def primitives_endpoint(endpoint_url: str, default_graph: str | None = None, dec
     for binding in results["results"]["bindings"]:
         num_entities = int(binding["entityCount"]["value"])
 
-    num_instances = _get_num_instances_ep(sparql)
+    num_instances = _get_num_instances_ep_2(sparql)
 
     classes = _get_classes_ep(sparql)
 
@@ -2246,7 +2246,7 @@ def abox_endpoint(endpoint_url: str, default_graph: str | None = None, dec_place
             {"Metric": "Average Population", "Value": 0},
         ])
 
-    num_instances = _get_num_instances_ep(sparql)
+    num_instances = _get_num_instances_ep_2(sparql)
 
     # Average Class Connectivity
     # Connectivity of a class is defined as the total number of relationships instances of 

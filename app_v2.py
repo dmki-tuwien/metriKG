@@ -218,7 +218,7 @@ METRIC_HELP_LOCAL = {
     "primitives":   "**Number of Entities** ([Reference](https://jbiomedsem.biomedcentral.com/articles/10.1186/s13326-018-0188-7)):  \n &nbsp;&nbsp;&nbsp;&nbsp; The total count of unique resources (URIs and BNodes) that appear as a subject or a non-literal object in any triple.\n\n"
                     
                     "**Number of Properties** ([Reference](https://onlinelibrary.wiley.com/doi/10.1002/smr.341)):  \n &nbsp;&nbsp;&nbsp;&nbsp; The sum of two counts:  \n"
-                    " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1.  Properties explicitly declared as `owl:ObjectProperty`, `owl:DatatypeProperty`, or `owl:AnnotationProperty` (T-Box).  \n "
+                    " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1.  Properties explicitly declared as `owl:ObjectProperty`, `owl:DatatypeProperty`, or `RDF.Property` (T-Box).  \n "
                     "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2.  All unique predicates used in the graph (A-Box). \n\n"
                     
                     "**Number of Classes** ([Reference](https://ieeexplore.ieee.org/document/4031647)):  \n &nbsp;&nbsp;&nbsp;&nbsp; The count of classes. The criteria for identifiying a class:  \n"
@@ -240,7 +240,7 @@ METRIC_HELP_LOCAL = {
                                  "This metric measures the maximum depth (= number of edges in longest path) of the class hierarchy based on `rdfs:subClassOf` relationships.\n\n"
                                  "The calculation starts by identifying all root classes (classes that are not a subclass of any other class). From each root, the hierarchy is traversed downwards using a depth-first search (DFS) algorithm to find the longest path to a leaf class (a class with no subclasses).  \n\n",
 
-    "tbox": "**Property/Class-Ratio** ([Reference](https://onlinelibrary.wiley.com/doi/10.1002/smr.341)):  \n &nbsp;&nbsp;&nbsp;&nbsp; The ratio of explicitly declared T-Box properties (`owl:ObjectProperty`, `owl:DatatypeProperty`, `owl:AnnotationProperty`) to the total number of classes (criteria for a class: see **Number of Classes**). \n\n"
+    "tbox": "**Property/Class-Ratio** ([Reference](https://onlinelibrary.wiley.com/doi/10.1002/smr.341)):  \n &nbsp;&nbsp;&nbsp;&nbsp; The ratio of explicitly declared T-Box properties (`owl:ObjectProperty`, `owl:DatatypeProperty`, `RDF.Property`) to the total number of classes (criteria for a class: see **Number of Classes**). \n\n"
             
             "**Class/Property-Ratio** ([Reference](https://www.scitepress.org/Link.aspx?doi=10.5220/0004541400480057)):  \n &nbsp;&nbsp;&nbsp;&nbsp; The inverse of the Property Class Ratio, showing the ratio of classes to properties. \n\n"
             
@@ -315,7 +315,7 @@ METRIC_HELP_ENDPOINT = {
     "primitives":   "**Number of Entities** ([Reference](https://jbiomedsem.biomedcentral.com/articles/10.1186/s13326-018-0188-7)):  \n &nbsp;&nbsp;&nbsp;&nbsp; The total count of unique resources (URIs and BNodes) that appear as a subject or a non-literal object in any triple.\n\n"
                     
                     "**Number of Properties** ([Reference](https://onlinelibrary.wiley.com/doi/10.1002/smr.341)):  \n &nbsp;&nbsp;&nbsp;&nbsp; The sum of two counts:  \n"
-                    " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1.  Properties explicitly declared as `owl:ObjectProperty`, `owl:DatatypeProperty`, or `owl:AnnotationProperty` (T-Box).  \n "
+                    " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1.  Properties explicitly declared as `owl:ObjectProperty`, `owl:DatatypeProperty`, or `RDF.Property` (T-Box).  \n "
                     "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2.  All unique predicates used in the graph (A-Box). \n\n"
                     
                     "**Number of Classes** ([Reference](https://ieeexplore.ieee.org/document/4031647)):  \n &nbsp;&nbsp;&nbsp;&nbsp; The count of classes. The criteria for identifiying a class:  \n"
@@ -353,7 +353,7 @@ METRIC_HELP_ENDPOINT = {
                               "This method ensures that both named and anonymous classes are properly considered, "
                               "accurately reconstructing the full inheritance hierarchy even when blank nodes or distributed subclass relationships "
                               "make direct traversal through the endpoint unreliable.",
-    "tbox": "**Property/Class-Ratio** ([Reference](https://onlinelibrary.wiley.com/doi/10.1002/smr.341)):  \n &nbsp;&nbsp;&nbsp;&nbsp; The ratio of explicitly declared T-Box properties (`owl:ObjectProperty`, `owl:DatatypeProperty`, `owl:AnnotationProperty`) to the total number of classes (criteria for a class: see **Number of Classes**). \n\n"
+    "tbox": "**Property/Class-Ratio** ([Reference](https://onlinelibrary.wiley.com/doi/10.1002/smr.341)):  \n &nbsp;&nbsp;&nbsp;&nbsp; The ratio of explicitly declared T-Box properties (`owl:ObjectProperty`, `owl:DatatypeProperty`, `RDF.Property`) to the total number of classes (criteria for a class: see **Number of Classes**). \n\n"
             
             "**Class/Property-Ratio** ([Reference](https://www.scitepress.org/Link.aspx?doi=10.5220/0004541400480057)):  \n &nbsp;&nbsp;&nbsp;&nbsp; The inverse of the Property Class Ratio, showing the ratio of classes to properties. \n\n"
             
