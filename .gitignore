@@ -11,3 +11,5 @@
 !nb_endpoint.ipynb
 !nb_file.ipynb
 !requirements.txt
+!.dockerignore
+!Dockerfile

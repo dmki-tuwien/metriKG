@@ -1,0 +1,21 @@
+# Python / venv
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Git
+.git/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Optional: lokale Daten/Outputs (falls vorhanden)
+data/
+datasets/
+*.log
