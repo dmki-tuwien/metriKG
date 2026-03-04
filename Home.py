@@ -20,11 +20,10 @@ import sys, subprocess
 import jupyter_client
 from urllib.parse import urlparse, urlsplit
 
-#import json
 import streamlit.components.v1 as components
 import time
 
-#import altair as alt
+import altair as alt
 
 # Initializing session state variables for controlling the app flow
 if "button_pressed" not in st.session_state:
@@ -89,7 +88,7 @@ def is_valid_endpoint_url(url: str) -> bool:
 # Defining the list of all metric rows
 ALL_METRIC_ROWS = [
     # Paths/Depth
-    "Number of Paths", "Absolute Depth", "Average Depth", "Maximal Depth",
+    "Number of Paths", "Absolute Depth", "Average Depth", "Maximum Depth",
     # Ontology Tangledness
     "Ontology Tangledness",
     # Degree
@@ -118,7 +117,7 @@ if "results_df" not in st.session_state:
 
 # Mapping of categories to their metrics
 CATEGORY_TO_METRICS = {
-    "paths_depth" : ["Number of Paths", "Absolute Depth", "Average Depth", "Maximal Depth"],
+    "paths_depth" : ["Number of Paths", "Absolute Depth", "Average Depth", "Maximum Depth"],
     "ont_tangledness" : ["Ontology Tangledness"],
     "degree_variance": ["Degree Variance"],
     "primitives": ["Number of Entities", "Number of Properties", "Number of Classes", "Number of Instances", "Number of Object Properties"],
@@ -201,7 +200,7 @@ METRIC_HELP_LOCAL = {
                     
                     "**Average Depth** ([Reference](https://link.springer.com/chapter/10.1007/11762256_13)):  \n &nbsp;&nbsp;&nbsp;&nbsp;  The average length of a path (Absolute Depth / Number of Paths)\n\n"
                     
-                    "**Maximal Depth** ([Reference](https://onlinelibrary.wiley.com/doi/10.1002/isaf.1360)):  \n &nbsp;&nbsp;&nbsp;&nbsp; The length of the longest path found in the graph",
+                    "**Maximum Depth** ([Reference](https://onlinelibrary.wiley.com/doi/10.1002/isaf.1360)):  \n &nbsp;&nbsp;&nbsp;&nbsp; The length of the longest path found in the graph",
 
     "ont_tangledness":  "**Ontology Tangledness** ([Reference](https://www.scitepress.org/Link.aspx?doi=10.5220/0004541400480057)):  \n"
                         "&nbsp;&nbsp;&nbsp;&nbsp;The ratio of total classes (criteria for a class: see **Number of Classes**) to classes"
@@ -219,7 +218,7 @@ METRIC_HELP_LOCAL = {
     "primitives":   "**Number of Entities** ([Reference](https://jbiomedsem.biomedcentral.com/articles/10.1186/s13326-018-0188-7)):  \n &nbsp;&nbsp;&nbsp;&nbsp; The total count of unique resources (URIs and BNodes) that appear as a subject or a non-literal object in any triple.\n\n"
                     
                     "**Number of Properties** ([Reference](https://onlinelibrary.wiley.com/doi/10.1002/smr.341)):  \n &nbsp;&nbsp;&nbsp;&nbsp; The sum of two counts:  \n"
-                    " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1.  Properties explicitly declared as `owl:ObjectProperty`, `owl:DatatypeProperty`, or `owl:AnnotationProperty` (T-Box).  \n "
+                    " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1.  Properties explicitly declared as `owl:ObjectProperty`, `owl:DatatypeProperty`, or `RDF.Property` (T-Box).  \n "
                     "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2.  All unique predicates used in the graph (A-Box). \n\n"
                     
                     "**Number of Classes** ([Reference](https://ieeexplore.ieee.org/document/4031647)):  \n &nbsp;&nbsp;&nbsp;&nbsp; The count of classes. The criteria for identifiying a class:  \n"
@@ -238,10 +237,10 @@ METRIC_HELP_LOCAL = {
                     "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2. All unique predicates in the rdf triples that have a non-literal as an object (A-Box). ",
 
     "depth_of_inheritance_tree": "**Depth of Inheritance Tree** ([Reference](https://onlinelibrary.wiley.com/doi/10.1002/smr.341)):  \n &nbsp;&nbsp;&nbsp;&nbsp; "   
-                                 "This metric measures the maximal depth (= number of edges in longest path) of the class hierarchy based on `rdfs:subClassOf` relationships.\n\n"
+                                 "This metric measures the maximum depth (= number of edges in longest path) of the class hierarchy based on `rdfs:subClassOf` relationships.\n\n"
                                  "The calculation starts by identifying all root classes (classes that are not a subclass of any other class). From each root, the hierarchy is traversed downwards using a depth-first search (DFS) algorithm to find the longest path to a leaf class (a class with no subclasses).  \n\n",
 
-    "tbox": "**Property/Class-Ratio** ([Reference](https://onlinelibrary.wiley.com/doi/10.1002/smr.341)):  \n &nbsp;&nbsp;&nbsp;&nbsp; The ratio of explicitly declared T-Box properties (`owl:ObjectProperty`, `owl:DatatypeProperty`, `owl:AnnotationProperty`) to the total number of classes (criteria for a class: see **Number of Classes**). \n\n"
+    "tbox": "**Property/Class-Ratio** ([Reference](https://onlinelibrary.wiley.com/doi/10.1002/smr.341)):  \n &nbsp;&nbsp;&nbsp;&nbsp; The ratio of explicitly declared T-Box properties (`owl:ObjectProperty`, `owl:DatatypeProperty`, `RDF.Property`) to the total number of classes (criteria for a class: see **Number of Classes**). \n\n"
             
             "**Class/Property-Ratio** ([Reference](https://www.scitepress.org/Link.aspx?doi=10.5220/0004541400480057)):  \n &nbsp;&nbsp;&nbsp;&nbsp; The inverse of the Property Class Ratio, showing the ratio of classes to properties. \n\n"
             
@@ -298,7 +297,7 @@ METRIC_HELP_ENDPOINT = {
                     
                     "**Average Depth** ([Reference](https://link.springer.com/chapter/10.1007/11762256_13)):  \n &nbsp;&nbsp;&nbsp;&nbsp;  The average length of a path (Absolute Depth / Number of Paths)\n\n"
                     
-                    "**Maximal Depth** ([Reference](https://onlinelibrary.wiley.com/doi/10.1002/isaf.1360)):  \n &nbsp;&nbsp;&nbsp;&nbsp; The length of the longest path found in the graph",
+                    "**Maximum Depth** ([Reference](https://onlinelibrary.wiley.com/doi/10.1002/isaf.1360)):  \n &nbsp;&nbsp;&nbsp;&nbsp; The length of the longest path found in the graph",
 
     "ont_tangledness":  "**Ontology Tangledness** ([Reference](https://www.scitepress.org/Link.aspx?doi=10.5220/0004541400480057)):  \n"
                         "&nbsp;&nbsp;&nbsp;&nbsp;The ratio of total classes (criteria for a class: see **Number of Classes**) to classes"
@@ -316,15 +315,15 @@ METRIC_HELP_ENDPOINT = {
     "primitives":   "**Number of Entities** ([Reference](https://jbiomedsem.biomedcentral.com/articles/10.1186/s13326-018-0188-7)):  \n &nbsp;&nbsp;&nbsp;&nbsp; The total count of unique resources (URIs and BNodes) that appear as a subject or a non-literal object in any triple.\n\n"
                     
                     "**Number of Properties** ([Reference](https://onlinelibrary.wiley.com/doi/10.1002/smr.341)):  \n &nbsp;&nbsp;&nbsp;&nbsp; The sum of two counts:  \n"
-                    " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1.  Properties explicitly declared as `owl:ObjectProperty`, `owl:DatatypeProperty`, or `owl:AnnotationProperty` (T-Box).  \n "
+                    " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1.  Properties explicitly declared as `owl:ObjectProperty`, `owl:DatatypeProperty`, or `RDF.Property` (T-Box).  \n "
                     "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2.  All unique predicates used in the graph (A-Box). \n\n"
                     
                     "**Number of Classes** ([Reference](https://ieeexplore.ieee.org/document/4031647)):  \n &nbsp;&nbsp;&nbsp;&nbsp; The count of classes. The criteria for identifiying a class:  \n"
                     "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1.  Any resource that is the object of an `rdf:type` triple.  \n"
                     "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2.  Both the subject and object of an `rdfs:subClassOf` / `owl:equivalentClass` triple.  \n"
-                    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 3. The subject of a triple declaring an `owl:Restriction`.  \n"
+                    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 3.  The subject of a triple declaring an `owl:Restriction`.  \n"
                     "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4.  The subject of complex class definitions using `owl:unionOf`, `owl:intersectionOf`, `owl:complementOf` or `owl:oneOf`.  \n"
-                    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 5. The subject of an `owl:hasValue` restriction.  \n\n"
+                    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 5.  The subject of an `owl:hasValue` restriction.  \n\n"
                     
                     "**Number of Instances** ([Reference](https://link.springer.com/chapter/10.1007/978-90-481-8847-5_5)):  \n &nbsp;&nbsp;&nbsp;&nbsp;" 
                     "Count of all individual instances in the graph.  Specifically, this is the number of unique subjects in triples of the form `(s, rdf:type, o)` "
@@ -335,7 +334,7 @@ METRIC_HELP_ENDPOINT = {
                     "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2. All unique predicates in the rdf triples that have a non-literal as an object (A-Box). ",
 
     "depth_of_inheritance_tree": "**Depth of Inheritance Tree** ([Reference](https://onlinelibrary.wiley.com/doi/10.1002/smr.341)):  \n &nbsp;&nbsp;&nbsp;&nbsp; "   
-                                 "This metric measures the maximal depth (= number of edges in longest path) of the class hierarchy based on `rdfs:subClassOf` relationships.\n\n"
+                                 "This metric measures the maximum depth (= number of edges in longest path) of the class hierarchy based on `rdfs:subClassOf` relationships.\n\n"
                                  "The calculation starts by identifying all root classes (classes that are not a subclass of any other class)."
                                 " From each root, the hierarchy is traversed downwards using a depth-first search (DFS) algorithm to find the longest path to a leaf class (a class with no subclasses).  \n\n"
                                 "To determine this hierarchy remotely, the function first reconstructs the class structure using SPARQL queries before performing a local traversal:  \n\n"
@@ -354,7 +353,7 @@ METRIC_HELP_ENDPOINT = {
                               "This method ensures that both named and anonymous classes are properly considered, "
                               "accurately reconstructing the full inheritance hierarchy even when blank nodes or distributed subclass relationships "
                               "make direct traversal through the endpoint unreliable.",
-    "tbox": "**Property/Class-Ratio** ([Reference](https://onlinelibrary.wiley.com/doi/10.1002/smr.341)):  \n &nbsp;&nbsp;&nbsp;&nbsp; The ratio of explicitly declared T-Box properties (`owl:ObjectProperty`, `owl:DatatypeProperty`, `owl:AnnotationProperty`) to the total number of classes (criteria for a class: see **Number of Classes**). \n\n"
+    "tbox": "**Property/Class-Ratio** ([Reference](https://onlinelibrary.wiley.com/doi/10.1002/smr.341)):  \n &nbsp;&nbsp;&nbsp;&nbsp; The ratio of explicitly declared T-Box properties (`owl:ObjectProperty`, `owl:DatatypeProperty`, `RDF.Property`) to the total number of classes (criteria for a class: see **Number of Classes**). \n\n"
             
             "**Class/Property-Ratio** ([Reference](https://www.scitepress.org/Link.aspx?doi=10.5220/0004541400480057)):  \n &nbsp;&nbsp;&nbsp;&nbsp; The inverse of the Property Class Ratio, showing the ratio of classes to properties. \n\n"
             
@@ -416,392 +415,436 @@ def metric_keys_to_run(selected_key: str) -> list[str]:
     return [selected_key]
 
 # Streamlit page title
-st.title("Metric Computation for Evolving Knowledge Graphs")
+st.title("Metric Exploration for Evolving Knowledge Graphs")
 
-# User interface for selecting the source of the data (either uploading a file or providing a SPARQL endpoint URL)
-source = st.radio("Source", ["Local RDF-File", "SPARQL Endpoint"], horizontal=True)
+left, right = st.columns([5, 5])  
 
-if source == "Local RDF-File":
-    # If the user selects "Local RDF-File", they are prompted to upload an RDF file
-    uploaded = st.file_uploader("RDF-File")
-else:
-    # If the user selects "SPARQL Endpoint", a warning is shown about potential issues with SPARQL endpoints
-    st.warning("""Note: Be aware that some SPARQL Endpoints do not return the full results 
-                and have Timeouts which may result in incorrect or unavailable Metrics.""", icon="⚠️")
-    
-    # Text inputs for entering the SPARQL endpoint URL and an optional default graph IRI
-    endpoint_url  = st.text_input("Endpoint URL", placeholder="https://example.org/sparql")
-    default_graph = st.text_input("Default Graph IRI (optional)")
-
-# Streamlit title for Metrics section
-st.title("Metrics")
-
-
-# dropdown menu (METRICS[k] means it should show the value/description of k, not the key k)
-# metric_key = st.selectbox("Metric", list(METRICS.keys()), format_func=lambda k: METRICS[k])
-
-# Session state for metric selections
-for key in METRICS.keys():
-    if key not in st.session_state:
-        st.session_state[key] = False
-
-# User interface for selecting metrics (Select all/none buttons)
-left, right, _ = st.columns([1, 1, 6])  
 with left:
-    if st.button("Select all"):
-        for key in METRICS.keys():
-            st.session_state[key] = True
-with right:
-    if st.button("Select none"):
-        for key in METRICS.keys():
+
+    st.header("Metric Computation")
+
+    #st.subheader("Metric Calculation")
+    # User interface for selecting the source of the data (either uploading a file or providing a SPARQL endpoint URL)
+    source = st.radio("Source", ["Local RDF-File", "SPARQL Endpoint"], horizontal=True)
+
+    if source == "Local RDF-File":
+        # If the user selects "Local RDF-File", they are prompted to upload an RDF file
+        uploaded = st.file_uploader("RDF-File")
+    else:
+        # If the user selects "SPARQL Endpoint", a warning is shown about potential issues with SPARQL endpoints
+        st.warning("""Note: Be aware that some SPARQL Endpoints do not return the full results 
+                    and have Timeouts which may result in incorrect or unavailable Metrics.""", icon="⚠️")
+        
+        # Text inputs for entering the SPARQL endpoint URL and an optional default graph IRI
+        endpoint_url  = st.text_input("Endpoint URL", placeholder="https://example.org/sparql")
+        default_graph = st.text_input("Default Graph IRI (optional)")
+
+    # Streamlit title for Metrics section
+    st.subheader("Metrics")
+
+
+    # dropdown menu (METRICS[k] means it should show the value/description of k, not the key k)
+    # metric_key = st.selectbox("Metric", list(METRICS.keys()), format_func=lambda k: METRICS[k])
+
+    # Session state for metric selections
+    for key in METRICS.keys():
+        if key not in st.session_state:
             st.session_state[key] = False
 
-# Checkbox for each metric
-selected_metrics = {}
-for key, description in METRICS.items():
-    
-    if source == "Local RDF-File":
-        # Display checkbox for the metric if the source is a local RDF file, with help text from `METRIC_HELP_LOCAL`
-        selected_metrics[key] = st.checkbox(
-            description, 
-            key=key, 
-            help=METRIC_HELP_LOCAL.get(key, "")
-        )
-    else:
-        # Display checkbox for the metric if the source is a SPARQL endpoint, with help text from `METRIC_HELP_ENDPOINT`
-        selected_metrics[key] = st.checkbox(
-            description, 
-            key=key, 
-            help=METRIC_HELP_ENDPOINT.get(key, "")
-        )
+    # User interface for selecting metrics (Select all/none buttons)
+    left_2, right_2, _ = st.columns([2, 2, 5])  
+    with left_2:
+        if st.button("Select all"):
+            for key in METRICS.keys():
+                st.session_state[key] = True
+    with right_2:
+        if st.button("Select none"):
+            for key in METRICS.keys():
+                st.session_state[key] = False
 
-# button to start calculation
-run = st.button("Calculate", type="primary")
-
-def run_nb(nb_path: Path, params: dict):
-    """
-    Executes the specified notebook with the given parameters.
-    """
-    
-    with tempfile.TemporaryDirectory() as tmp:
-        tmp = Path(tmp)
-        executed_nb = tmp / "run.ipynb"
-        out_csv = tmp / "metrics.csv"
-        params["output_csv"] = str(out_csv)
-
-
-        # if local file (creates source path in paramaters)
-        if "uploaded" in params:
-            # path for tmp file
-            # params["uploaded"].name = name of uploaded file
-            in_path = tmp / params["uploaded"].name
-            # copies content of uploaded file to tmp file
-            in_path.write_bytes(params["uploaded"].getbuffer())
-            params["source_path"] = str(in_path)
-            del params["uploaded"]
+    # Checkbox for each metric
+    selected_metrics = {}
+    for key, description in METRICS.items():
         
-        # Execute the notebook with the parameters
-        pm.execute_notebook(
-            input_path=str(nb_path),
-            output_path=str(executed_nb),
-            parameters=params,
-            cwd=str(BASE), # working directory
-            kernel_name="metrikg-venv",
-            progress_bar=True,
-        )
-
-        df = pd.read_csv(out_csv) if out_csv.exists() else None
-        
-        # should not be the case
-        if df is None:
-            nb = sb.read_notebook(str(executed_nb))
-            if "metrics_table" in nb.scraps:
-                df = nb.scraps["metrics_table"].data
-
-        return df#, executed_bytes
-
-# Stores checkbox status for each metric
-keys_to_run = [k for k, checked in selected_metrics.items() if checked]
-
-# Creating space for subheader, download-button and enlarge/reduce-button
-left, middle, right = st.columns([4, 2, 1])  
-
-# This checks if the calculation should run (or if already in progress)
-if run:
-    # Setting session state flags for calculation
-    st.session_state.calculating = True
-    st.session_state.first_run_made = True
-
-# Setting the page title in Streamlit
-with left:
-    if st.session_state.first_run_made == True:
-        #st.title("Knowledge Graph Metrics")
-        st.title("Metric Values")
-
-# This checks if the calculation should run (or if already in progress)
-if run:
-    st.session_state.calculating = True
-    st.session_state.first_run_made = True
-    
-    try:
-        # Check if at least one metric is selected
-        if not keys_to_run:
-            st.warning("Please select at least one metric.")
-
         if source == "Local RDF-File":
-            # Case when the source is a local RDF file
-            if not uploaded:
-                # Show an error if the file is not uploaded
-                st.error("Missing uploaded File.")
-            else:
-                with st.status("Calculating metrics …", expanded=False) as status:
-                    # Loop through the selected metrics and calculate them
-                    for i, k in enumerate(keys_to_run, start=1):
-
-                        # shows progress
-                        status.update(label=f"[{i}/{len(keys_to_run)}] {METRICS[k]}")
-                        st.session_state.last_status = f"[{i}/{len(keys_to_run)}] {METRICS[k]}"
-
-                        try:
-                            # Run the notebook to calculate the current metric
-                            df = run_nb(NB_FILE, {"metric_key": k, "uploaded": uploaded})
-                            # Set the source value as the uploaded file name
-                            source_value = uploaded.name 
-
-                        except Exception as e:
-                            # Raise an error if there is an issue with the metric calculation
-                            error_message = f"Error when calculating metric({METRICS[k]}): \n\n{e}"
-                            raise RuntimeError(error_message)  # Raise the simplified error
-                            
-                        if df is None or df.empty:
-                            raise RuntimeError(f"{METRICS[k]}: No result")
-
-                        # Update the results DataFrame with the calculated values
-                        update_results_df(df, source_label="file", source_value=source_value)
-
-                    # Notify that calculation is done
-                    st.success("Calculation done.")
-                    st.session_state.full_table = False
-
-                # Filter the metrics based on user selection
-                keys_to_show = []
-
-                for k, checked in selected_metrics.items():
-                    if checked:
-                        if k in CATEGORY_TO_METRICS:
-                            # Add all metrics from the selected category (if checkbox consists of many metrics)
-                            keys_to_show.extend(CATEGORY_TO_METRICS[k])
-                        else:
-                            # Add the individual metric (if checkbox consists of one metric)
-                            keys_to_show.append(k)
-
-                # Filter the results DataFrame to show only selected metrics
-                df_to_show = st.session_state.results_df[
-                    st.session_state.results_df["Metric"].isin(keys_to_show)
-                ].copy()
-
-                # Save the filtered results DataFrame to the session state
-                st.session_state["df_to_show"] = df_to_show
-
+            # Display checkbox for the metric if the source is a local RDF file, with help text from `METRIC_HELP_LOCAL`
+            selected_metrics[key] = st.checkbox(
+                description, 
+                key=key, 
+                help=METRIC_HELP_LOCAL.get(key, "")
+            )
         else:
-            # Case when the source is a SPARQL endpoint
-            # Clean the inputs
-            endpoint_url = clean_url(endpoint_url)
-            default_graph = clean_iri(default_graph)
+            # Display checkbox for the metric if the source is a SPARQL endpoint, with help text from `METRIC_HELP_ENDPOINT`
+            selected_metrics[key] = st.checkbox(
+                description, 
+                key=key, 
+                help=METRIC_HELP_ENDPOINT.get(key, "")
+            )
 
-            if not endpoint_url:
-                # Error if the endpoint URL is not provided
-                st.error("Missing Endpoint URL.")
+    # button to start calculation
+    run = st.button("Calculate", type="primary")
 
-            elif not is_valid_endpoint_url(endpoint_url):
-                # Error if the URL is invalid
-                st.error("Invalid Endpoint URL")
+    def run_nb(nb_path: Path, params: dict):
+        """
+        Executes the specified notebook with the given parameters.
+        """
+        
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            executed_nb = tmp / "run.ipynb"
+            out_csv = tmp / "metrics.csv"
+            params["output_csv"] = str(out_csv)
 
-            elif default_graph and not is_valid_iri(default_graph):
-                # Error if the default graph IRI is invalid
-                st.error("Invalid Default Graph IRI")
+
+            # if local file (creates source path in paramaters)
+            if "uploaded" in params:
+                # path for tmp file
+                # params["uploaded"].name = name of uploaded file
+                in_path = tmp / params["uploaded"].name
+                # copies content of uploaded file to tmp file
+                in_path.write_bytes(params["uploaded"].getbuffer())
+                params["source_path"] = str(in_path)
+                del params["uploaded"]
+            
+            # Execute the notebook with the parameters
+            pm.execute_notebook(
+                input_path=str(nb_path),
+                output_path=str(executed_nb),
+                parameters=params,
+                cwd=str(BASE), # working directory
+                kernel_name="metrikg-venv",
+                progress_bar=True,
+            )
+
+            df = pd.read_csv(out_csv) if out_csv.exists() else None
+            
+            # should not be the case
+            if df is None:
+                nb = sb.read_notebook(str(executed_nb))
+                if "metrics_table" in nb.scraps:
+                    df = nb.scraps["metrics_table"].data
+
+            return df#, executed_bytes
+
+    # Stores checkbox status for each metric
+    keys_to_run = [k for k, checked in selected_metrics.items() if checked]
+
+    # Creating space for subheader, download-button and enlarge/reduce-button
+    left_2, middle, right_2 = st.columns([4, 2, 1])  
+
+    # This checks if the calculation should run (or if already in progress)
+    if run:
+        # Setting session state flags for calculation
+        st.session_state.calculating = True
+        st.session_state.first_run_made = True
+
+    # Setting the page title in Streamlit
+    with left_2:
+        if st.session_state.first_run_made == True:
+            #st.title("Knowledge Graph Metrics")
+            st.subheader("Metric Values")
+
+    # This checks if the calculation should run (or if already in progress)
+    if run:
+        st.session_state.calculating = True
+        st.session_state.first_run_made = True
+        
+        try:
+            # Check if at least one metric is selected
+            if not keys_to_run:
+                st.warning("Please select at least one metric.")
+
+            if source == "Local RDF-File":
+                # Case when the source is a local RDF file
+                if not uploaded:
+                    # Show an error if the file is not uploaded
+                    st.error("Missing uploaded File.")
+                else:
+                    with st.status("Calculating metrics …", expanded=False) as status:
+                        # Loop through the selected metrics and calculate them
+                        for i, k in enumerate(keys_to_run, start=1):
+
+                            # shows progress
+                            status.update(label=f"[{i}/{len(keys_to_run)}] {METRICS[k]}")
+                            st.session_state.last_status = f"[{i}/{len(keys_to_run)}] {METRICS[k]}"
+
+                            try:
+                                # Run the notebook to calculate the current metric
+                                df = run_nb(NB_FILE, {"metric_key": k, "uploaded": uploaded})
+                                # Set the source value as the uploaded file name
+                                source_value = uploaded.name 
+
+                            except Exception as e:
+                                # Raise an error if there is an issue with the metric calculation
+                                error_message = f"Error when calculating metric({METRICS[k]}): \n\n{e}"
+                                raise RuntimeError(error_message)  # Raise the simplified error
+                                
+                            if df is None or df.empty:
+                                raise RuntimeError(f"{METRICS[k]}: No result")
+
+                            # Update the results DataFrame with the calculated values
+                            update_results_df(df, source_label="file", source_value=source_value)
+
+                        # Notify that calculation is done
+                        st.success("Calculation done.")
+                        st.session_state.full_table = False
+
+                    # Filter the metrics based on user selection
+                    keys_to_show = []
+
+                    for k, checked in selected_metrics.items():
+                        if checked:
+                            if k in CATEGORY_TO_METRICS:
+                                # Add all metrics from the selected category (if checkbox consists of many metrics)
+                                keys_to_show.extend(CATEGORY_TO_METRICS[k])
+                            else:
+                                # Add the individual metric (if checkbox consists of one metric)
+                                keys_to_show.append(k)
+
+                    # Filter the results DataFrame to show only selected metrics
+                    df_to_show = st.session_state.results_df[
+                        st.session_state.results_df["Metric"].isin(keys_to_show)
+                    ].copy()
+
+                    # Save the filtered results DataFrame to the session state
+                    st.session_state["df_to_show"] = df_to_show
 
             else:
+                # Case when the source is a SPARQL endpoint
+                # Clean the inputs
+                endpoint_url = clean_url(endpoint_url)
+                default_graph = clean_iri(default_graph)
+
+                if not endpoint_url:
+                    # Error if the endpoint URL is not provided
+                    st.error("Missing Endpoint URL.")
+
+                elif not is_valid_endpoint_url(endpoint_url):
+                    # Error if the URL is invalid
+                    st.error("Invalid Endpoint URL")
+
+                elif default_graph and not is_valid_iri(default_graph):
+                    # Error if the default graph IRI is invalid
+                    st.error("Invalid Default Graph IRI")
+
+                else:
+                                
+                    with st.status("Calculating metrics …", expanded=False) as status:
+                        # Loop through the selected metrics and calculate them
+                        for i, k in enumerate(keys_to_run, start=1):
+                            status.update(label=f"[{i}/{len(keys_to_run)}] {METRICS[k]}")
                             
-                with st.status("Calculating metrics …", expanded=False) as status:
-                    # Loop through the selected metrics and calculate them
-                    for i, k in enumerate(keys_to_run, start=1):
-                        status.update(label=f"[{i}/{len(keys_to_run)}] {METRICS[k]}")
-                        
-                        try:
-                            # Run the notebook to calculate the current metric for the SPARQL endpoint
-                            df = run_nb(NB_EP, {
-                                "metric_key": k,
-                                "endpoint_url": endpoint_url,
-                                "default_graph": default_graph
-                            })
-                            # Set the source value based on the endpoint and default graph
-                            if default_graph :
-                                source_value = "EP: " + endpoint_url + "  DG: " + default_graph
+                            try:
+                                # Run the notebook to calculate the current metric for the SPARQL endpoint
+                                df = run_nb(NB_EP, {
+                                    "metric_key": k,
+                                    "endpoint_url": endpoint_url,
+                                    "default_graph": default_graph
+                                })
+                                # Set the source value based on the endpoint and default graph
+                                if default_graph :
+                                    source_value = "EP: " + endpoint_url + "  DG: " + default_graph
+                                else:
+                                    source_value = "EP: " + endpoint_url
+                            except Exception as e:
+                                # Raise an error if there is an issue with the metric calculation
+                                error_message = f"ENDPOINT ERROR ({METRICS[k]}): \n{e}"
+                                raise RuntimeError(error_message)  
+
+                            if df is None or df.empty:
+                                raise RuntimeError(f"{METRICS[k]}: Empty Result")
+                            # Update the results DataFrame with the calculated values
+                            update_results_df(df, source_label="endpoint", source_value=source_value)
+
+                        # Notify that calculation is done
+                        st.success("Calculation done.")
+                        st.session_state.full_table = False
+
+                    # Filter the metrics based on user selection
+                    keys_to_show = []
+
+                    for k, checked in selected_metrics.items():
+                        if checked:
+                            
+                            if k in CATEGORY_TO_METRICS:
+                                # Add all metrics from the selected category (if checkbox consists of many metrics)
+                                keys_to_show.extend(CATEGORY_TO_METRICS[k])
                             else:
-                                source_value = "EP: " + endpoint_url
-                        except Exception as e:
-                            # Raise an error if there is an issue with the metric calculation
-                            error_message = f"ENDPOINT ERROR ({METRICS[k]}): \n{e}"
-                            raise RuntimeError(error_message)  
+                                # Add the individual metric (if checkbox consists of one metric)
+                                keys_to_show.append(k)
 
-                        if df is None or df.empty:
-                            raise RuntimeError(f"{METRICS[k]}: Empty Result")
-                        # Update the results DataFrame with the calculated values
-                        update_results_df(df, source_label="endpoint", source_value=source_value)
+                    # Filter the results DataFrame to show only selected metrics
+                    df_to_show = st.session_state.results_df[
+                        st.session_state.results_df["Metric"].isin(keys_to_show)
+                    ].copy()
 
-                    # Notify that calculation is done
-                    st.success("Calculation done.")
-                    st.session_state.full_table = False
+                    # Save the filtered results DataFrame to the session state
+                    st.session_state["df_to_show"] = df_to_show
 
-                # Filter the metrics based on user selection
-                keys_to_show = []
+            st.session_state.calculating = False
 
-                for k, checked in selected_metrics.items():
-                    if checked:
-                        
-                        if k in CATEGORY_TO_METRICS:
-                            # Add all metrics from the selected category (if checkbox consists of many metrics)
-                            keys_to_show.extend(CATEGORY_TO_METRICS[k])
-                        else:
-                            # Add the individual metric (if checkbox consists of one metric)
-                            keys_to_show.append(k)
-
-                # Filter the results DataFrame to show only selected metrics
-                df_to_show = st.session_state.results_df[
-                    st.session_state.results_df["Metric"].isin(keys_to_show)
-                ].copy()
-
-                # Save the filtered results DataFrame to the session state
-                st.session_state["df_to_show"] = df_to_show
-
-        st.session_state.calculating = False
-
-    except Exception as e:
-        # If an error occurs during calculation, show an error message
-        st.error(f"Metric Computation threw an error: {str(e)}")
+        except Exception as e:
+            # If an error occurs during calculation, show an error message
+            st.error(f"Metric Computation threw an error: {str(e)}")
 
 
-# Displaying the results if calculation is complete
-if ("df_to_show" in st.session_state) and st.session_state.calculating == False:
-    # Create columns for the table display
-    left, middle = st.columns([1,8])
+    # Displaying the results if calculation is complete
+    if ("df_to_show" in st.session_state) and st.session_state.calculating == False:
+        # Create columns for the table display
+        left_2, middle = st.columns([1,8])
 
-    # Set table height based on whether the full table is displayed
-    table_height = 700 if st.session_state.full_table else "auto"
-    #table_height = 720
-    #table_height = "auto"
+        # Set table height based on whether the full table is displayed
+        table_height = 700 if st.session_state.full_table else "auto"
+        #table_height = 720
+        #table_height = "auto"
 
-    # Display the results DataFrame as a table
-    st.dataframe(
-        st.session_state["df_to_show"],
-        width="stretch",
-        height=table_height,
-        hide_index=True # Hide the row index for a cleaner view
+        # Display the results DataFrame as a table
+        st.dataframe(
+            st.session_state["df_to_show"],
+            width="stretch",
+            height=table_height,
+            hide_index=True # Hide the row index for a cleaner view
+        )
+
+        snapshot_json = st.session_state["df_to_show"].to_json(orient="records")
+
+        # for saving results in browser-memory
+        if st.button("Save Metric Values to Browser-Memory", type="primary"):
+            unique = time.time()
+        #     # invisible element to be rendered
+            # components.html(
+            #     f"""
+            #     <script>
+            #         const entry = {{
+            #             timestamp: new Date().toISOString(),
+            #             data: {snapshot_json}
+            #         }};
+            #         let history = JSON.parse(localStorage.getItem("metrikg_history") || "[]");
+            #         history.push(entry);
+            #         localStorage.setItem("metrikg_history", JSON.stringify(history));
+            #         alert("Results saved in Browser-Memory.");
+            #     </script>
+            #     """,
+            #     height=0,   # invbisible
+            # )
+
+            components.html(
+                f"""
+                <script>
+                    console.log("save_snapshot_{unique}");
+                    const entry = {{
+                        timestamp: new Date().toISOString(),
+                        data: {snapshot_json}
+                    }};
+                    let history = JSON.parse(localStorage.getItem("metrikg_history") || "[]");
+                    history.push(entry);
+                    localStorage.setItem("metrikg_history", JSON.stringify(history));
+                    alert("Metric Values saved to Browser-Memory.");
+                </script>
+                """,
+                height=0
+            )
+
+with right:
+    st.header("Metric History Visualization")
+
+    uploaded_file = st.file_uploader(
+        "CSV File containing metric data",
+        type=["csv"]
     )
 
-    snapshot_json = st.session_state["df_to_show"].to_json(orient="records")
+    if uploaded_file is not None:
+        # read CSV file 
+        df = pd.read_csv(uploaded_file, sep=None, engine="python")
 
-    # for saving results in browser-memory
-    if st.button("Save Metric Values to Browser-Memory", type="primary"):
-        unique = time.time()
-    #     # invisible element to be rendered
-        # components.html(
-        #     f"""
-        #     <script>
-        #         const entry = {{
-        #             timestamp: new Date().toISOString(),
-        #             data: {snapshot_json}
-        #         }};
-        #         let history = JSON.parse(localStorage.getItem("metrikg_history") || "[]");
-        #         history.push(entry);
-        #         localStorage.setItem("metrikg_history", JSON.stringify(history));
-        #         alert("Results saved in Browser-Memory.");
-        #     </script>
-        #     """,
-        #     height=0,   # invbisible
-        # )
+        # check columns
+        expected_cols = ["Metric", "Value", "Source", "Run At"]
+        missing = [c for c in expected_cols if c not in df.columns]
+        if missing:
+            st.error(f"Missing columns in CSV file: {missing}")
+            st.stop()
 
-        components.html(
-            f"""
-            <script>
-                console.log("save_snapshot_{unique}");
-                const entry = {{
-                    timestamp: new Date().toISOString(),
-                    data: {snapshot_json}
-                }};
-                let history = JSON.parse(localStorage.getItem("metrikg_history") || "[]");
-                history.push(entry);
-                localStorage.setItem("metrikg_history", JSON.stringify(history));
-                alert("Metric Values saved to Browser-Memory.");
-            </script>
-            """,
-            height=0
+        # parse timestamp and value
+        df["Run At"] = pd.to_datetime(
+            df["Run At"],
+            dayfirst=True,      # für 17.11.2025 15:58:51
+            errors="coerce"
         )
 
-# st.header("Metric History Visualization")
+        # for debugging
+        # st.write("Zeilen mit ungültigem Datum:")
+        # st.write(df[pd.to_datetime(df["Run At"], dayfirst=True, errors="coerce").isna()])
 
-# uploaded_file = st.file_uploader(
-#     "CSV File containing metric data",
-#     type=["csv"]
-# )
+        df["Value"] = pd.to_numeric(df["Value"], errors="coerce")
+        df = df.dropna(subset=["Run At", "Value"])
 
-# if uploaded_file is not None:
-#     # CSV einlesen
-#     df = pd.read_csv(uploaded_file, sep=None, engine="python")
+        # get metrics
+        metrics = sorted(df["Metric"].unique())
 
-#     # Spalten prüfen
-#     expected_cols = ["Metric", "Value", "Source", "Run At"]
-#     missing = [c for c in expected_cols if c not in df.columns]
-#     if missing:
-#         st.error(f"Fehlende Spalten in der CSV: {missing}")
-#         st.stop()
+        # no selectbox if just one metric in file
+        if len(metrics) == 1:
+            selected_metric = metrics[0]
+            st.write(f"Found only metric: **{selected_metric}**")
+        else:
+            selected_metric = st.selectbox("Select metric", metrics)
 
-#     # Zeit und Wert parsen
-#     df["Run At"] = pd.to_datetime(
-#         df["Run At"],
-#         dayfirst=True,      # für 17.11.2025 15:58:51
-#         errors="coerce"
-#     )
-#     df["Value"] = pd.to_numeric(df["Value"], errors="coerce")
-#     df = df.dropna(subset=["Run At", "Value"])
+        metric_df = df[df["Metric"] == selected_metric].copy()
+        metric_df = metric_df.sort_values("Run At")
 
-#     # Metriken holen
-#     metrics = sorted(df["Metric"].unique())
+        # String-Spalte für die Achsenlabels (nur dort gibt es auch Werte)
+        #metric_df["Run At Label"] = metric_df["Run At"].dt.strftime("%d.%m.%Y %H:%M:%S")
+        ### metric_df["Run At Label"] = metric_df["Run At"].dt.strftime("%d.%m.%Y")
 
-#     # Wenn nur eine Metrik vorhanden ist, kein Selectbox anzeigen
-#     if len(metrics) == 1:
-#         selected_metric = metrics[0]
-#         st.write(f"Found metric: **{selected_metric}**")
-#     else:
-#         selected_metric = st.selectbox("Select metric", metrics)
+        st.subheader(f"Visualization of: {selected_metric}")
 
-#     metric_df = df[df["Metric"] == selected_metric].copy()
-#     metric_df = metric_df.sort_values("Run At")
+        # Tage mit Messungen für die Tick-Positionen (Mitternacht-normalisiert)
+        tick_days = (
+            metric_df["Run At"]
+            .dt.normalize()
+            .drop_duplicates()
+            .sort_values()
+        )
 
-#     # String-Spalte für die Achsenlabels (nur dort gibt es auch Werte)
-#     metric_df["Run At Label"] = metric_df["Run At"].dt.strftime("%d.%m.%Y %H:%M:%S")
+        chart = (
+            alt.Chart(metric_df)
+            .mark_line(point=True)
+            .encode(
+                # diskrete Achse: ein Tick pro vorhandenem Messzeitpunkt
+                x=alt.X(
+                    ###"Run At Label:N",
+                    "Run At:T",
+                    title="Timestamp",
+                    axis=alt.Axis(
+                        format="%d.%m.%Y", # nur Datum anzeigen
+                        values=list(tick_days),
+                        labelFontSize=16,
+                        titleFontSize=16,
+                        labelAngle=-45,
+                        labelOverlap=False,
+                        ) 
+                ),
+                y=alt.Y(
+                    "Value:Q", 
+                    title="Value",
+                    axis=alt.Axis(
+                        labelFontSize=16,
+                        titleFontSize=16,
+                        ) 
+                    ),
+                tooltip=[
+                    ### alt.Tooltip("Run At:T", title="Timestamp"),
+                    alt.Tooltip(
+                        "Run At:T",
+                        title="Timestamp",
+                        format="%d.%m.%Y %H:%M:%S",
+                        #format="%d.%m.%Y",
+                    ),
 
-#     st.subheader(f"Visualization of: {selected_metric}")
+                    alt.Tooltip("Value:Q", title="Value"),
+                    alt.Tooltip("Source:N", title="Source")
+                ]
+            )
+            .properties(width="container", height=400)
+        )
 
-#     chart = (
-#         alt.Chart(metric_df)
-#         .mark_line(point=True)
-#         .encode(
-#             # diskrete Achse: ein Tick pro vorhandenem Messzeitpunkt
-#             x=alt.X(
-#                 "Run At Label:N",
-#                 title="Timestamp",
-#                 axis=alt.Axis(labelAngle=-45) 
-#             ),
-#             y=alt.Y("Value:Q", title="Value"),
-#             tooltip=[
-#                 alt.Tooltip("Run At:T", title="Timestamp"),
-#                 alt.Tooltip("Value:Q", title="Value"),
-#                 alt.Tooltip("Source:N", title="Source")
-#             ]
-#         )
-#         .properties(width="container", height=400)
-#     )
-
-#     st.altair_chart(chart, use_container_width=True)
+        st.altair_chart(chart, use_container_width=True)
