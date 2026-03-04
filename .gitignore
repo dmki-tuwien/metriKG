@@ -16,6 +16,5 @@
 # allow these folders and their contents
 !.streamlit/
 !.streamlit/**
-
 !pages/
 !pages/**

@@ -15,7 +15,7 @@ __pycache__/
 Thumbs.db
 .DS_Store
 
-# Optional: lokale Daten/Outputs (falls vorhanden)
+# Optional: local data 
 data/
 datasets/
 *.log
