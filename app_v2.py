@@ -168,6 +168,14 @@ KERNEL = ensure_kernel()
 # Streamlit page configuration
 st.set_page_config(page_title="Metric Computation for Evolving Knowledge Graphs", page_icon="📊", layout="wide")
 
+pg = st.navigation([
+    st.Page("app_v2.py", title="Home", icon="🏠"),
+    st.Page("pages/1_About.py", title="About", icon="ℹ️"),
+    st.Page("pages/2_Resources.py", title="Resources", icon="📦"),
+])
+
+pg.run()
+
 # Paths to files for notebooks
 BASE = Path(__file__).resolve().parent
 NB_FILE = BASE / "nb_file.ipynb"
