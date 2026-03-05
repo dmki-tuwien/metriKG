@@ -13,6 +13,22 @@ It was developed as part of a Bachelor's thesis at **TU Wien (Vienna University 
 
 ---
 
+## Docker Usage
+
+1. **Build Docker Image**
+   ```
+   docker build -t metrikg:latest .
+   ```
+
+2. **Run Docker Image**
+   ```
+   docker run --rm -p 8501:8501 metrikg:latest
+   ```
+
+The tool will then be accessible at: http://localhost:8501
+
+---
+
 ## Installation
 
 1. **Clone or download the repository**
