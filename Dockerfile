@@ -13,4 +13,5 @@ COPY . .
 EXPOSE 8501
 
 # Streamlit needs in Container 0.0.0.0
-CMD ["streamlit", "run", "Home.py", "--server.address=0.0.0.0", "--server.port=8501"]
+# CMD ["streamlit", "run", "Home.py", "--server.address=0.0.0.0", "--server.port=8501"]
+CMD ["python", "-m", "streamlit", "run", "Home.py", "--server.address=0.0.0.0", "--server.port=8501"]
