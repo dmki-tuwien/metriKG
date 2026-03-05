@@ -18,3 +18,5 @@
 !.streamlit/**
 !pages/
 !pages/**
+!resources/
+!resources/**
