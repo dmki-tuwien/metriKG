@@ -48,7 +48,7 @@ The following example CSV file containing metric values for several KG versions 
 """)
 
 st.download_button(
-    "Download: LOV - schema ( ~8KB CSV File )",
+    "Download: LOV - schema ( ~6KB CSV File )",
     open("resources/lov_schema_metric_history.csv","rb").read(),
     file_name="lov_schema_metric_history.csv",
     mime="text/csv",
