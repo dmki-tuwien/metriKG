@@ -14,28 +14,28 @@ Please note that for larger files, the computation of certain metrics may take a
 """)
 
 st.download_button(
-    "Download: FOAF - Tim Berners-Lee ( ~8KB RDF/XML File)",
+    "Download: W3C — Tim Berners-Lee FOAF profile ( ~8KB RDF/XML File)",
     open("resources/foaf_tim_berners_lee.rdf","rb").read(),
     file_name="foaf_tim_berners_lee.rdf",
     mime="application/rdf+xml",
 )
 
 st.download_button(
-    "Download: FOAF Ontology ( ~43KB RDF/XML File)",
+    "Download: FOAF Vocabulary Specification (FOAF ontology) ( ~43KB RDF/XML File)",
     open("resources/foaf_ontology.rdf","rb").read(),
     file_name="foaf_ontology.rdf",
     mime="application/rdf+xml",
 )
 
 st.download_button(
-    "Download: Wine Ontology ( ~76KB RDF/XML File)",
+    "Download:  W3C OWL Guide — Wine ontology example dataset ( ~76KB RDF/XML File)",
     open("resources/wine_ontology.rdf","rb").read(),
     file_name="wine_ontology.rdf",
     mime="application/rdf+xml",
 )
 
 st.download_button(
-    "Download: DBpedia - Vienna ( ~2MB Turtle File )",
+    "Download: DBpedia — resource “Vienna” ( ~2MB Turtle File )",
     open("resources/dbpedia_vienna.ttl","rb").read(),
     file_name="dbpedia_vienna.ttl",
     mime="text/turtle"
