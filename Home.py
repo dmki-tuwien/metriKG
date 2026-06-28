@@ -755,7 +755,7 @@ with right:
 
     if uploaded_file is not None:
         # read CSV file 
-        df = pd.read_csv(uploaded_file, sep=None, engine="python")
+        df = pd.read_csv(uploaded_file, sep=None, engine="python", encoding="utf-8-sig")
 
         # check columns
         expected_cols = ["Metric", "Value", "Source", "Run At"]

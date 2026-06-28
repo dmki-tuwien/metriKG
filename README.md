@@ -62,9 +62,7 @@ The tool will then be accessible at: http://localhost:8501
 
 Start the web interface using Streamlit:
 
-    streamlit run app_v2.py
-
-`app_v1.py` is just the first version of the tool, which does not contain the visualization component.
+    streamlit run Home.py
 
 By default, the tool will be accessible at: [http://localhost:8501](http://localhost:8501)
 
