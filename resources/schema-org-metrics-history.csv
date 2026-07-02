@@ -1,0 +1,116 @@
+Metric,Value,Source,Run At
+Number of Paths,36372,schema_2013-08-07.n3,07.08.2013
+Absolute Depth,135872,schema_2013-08-07.n3,07.08.2013
+Average Depth,3.74,schema_2013-08-07.n3,07.08.2013
+Maximal Depth,9,schema_2013-08-07.n3,07.08.2013
+Ontology Tangledness,23.17,schema_2013-08-07.n3,07.08.2013
+Degree Variance,204.34,schema_2013-08-07.n3,07.08.2013
+Number of Entities,1310,schema_2013-08-07.n3,07.08.2013
+Number of Properties,7,schema_2013-08-07.n3,07.08.2013
+Number of Classes,533,schema_2013-08-07.n3,07.08.2013
+Number of Instances,1286,schema_2013-08-07.n3,07.08.2013
+Number of Object Properties,5,schema_2013-08-07.n3,07.08.2013
+Depth of Inheritance Tree,5,schema_2013-08-07.n3,07.08.2013
+Property Class Ratio,0,schema_2013-08-07.n3,07.08.2013
+Class Property Ratio,0,schema_2013-08-07.n3,07.08.2013
+Inheritance Richness,1.04,schema_2013-08-07.n3,07.08.2013
+Attribute Richness,0,schema_2013-08-07.n3,07.08.2013
+Average Population,2.41,schema_2013-08-07.n3,07.08.2013
+Average Class Connectivity,6.2,schema_2013-08-07.n3,07.08.2013
+Cohesion,1,schema_2013-08-07.n3,07.08.2013
+Number of Paths,57658,schema_v2.n3,12.05.2015
+Absolute Depth,219507,schema_v2.n3,12.05.2015
+Average Depth,3.81,schema_v2.n3,12.05.2015
+Maximal Depth,9,schema_v2.n3,12.05.2015
+Ontology Tangledness,15.78,schema_v2.n3,12.05.2015
+Degree Variance,289.95,schema_v2.n3,12.05.2015
+Number of Entities,1855,schema_v2.n3,12.05.2015
+Number of Properties,12,schema_v2.n3,12.05.2015
+Number of Classes,647,schema_v2.n3,18.11.2025
+Number of Instances,1790,schema_v2.n3,12.05.2015
+Number of Object Properties,10,schema_v2.n3,12.05.2015
+Depth of Inheritance Tree,5,schema_v2.n3,12.05.2015
+Property Class Ratio,0,schema_v2.n3,12.05.2015
+Class Property Ratio,0,schema_v2.n3,12.05.2015
+Inheritance Richness,1.04,schema_v2.n3,12.05.2015
+Attribute Richness,0,schema_v2.n3,12.05.2015
+Average Population,2.77,schema_v2.n3,12.05.2015
+Average Class Connectivity,9.62,schema_v2.n3,12.05.2015
+Cohesion,1,schema_v2.n3,12.05.2015
+Number of Paths,43728,schema_v3.n3,04.05.2016
+Absolute Depth,156256,schema_v3.n3,04.05.2016
+Average Depth,3.57,schema_v3.n3,04.05.2016
+Maximal Depth,9,schema_v3.n3,04.05.2016
+Ontology Tangledness,39.33,schema_v3.n3,04.05.2016
+Degree Variance,269.22,schema_v3.n3,04.05.2016
+Number of Entities,1571,schema_v3.n3,04.05.2016
+Number of Properties,13,schema_v3.n3,04.05.2016
+Number of Classes,590,schema_v3.n3,04.05.2016
+Number of Instances,1511,schema_v3.n3,04.05.2016
+Number of Object Properties,11,schema_v3.n3,04.05.2016
+Depth of Inheritance Tree,5,schema_v3.n3,04.05.2016
+Property Class Ratio,0,schema_v3.n3,04.05.2016
+Class Property Ratio,0,schema_v3.n3,04.05.2016
+Inheritance Richness,1,schema_v3.n3,04.05.2016
+Attribute Richness,0,schema_v3.n3,04.05.2016
+Average Population,2.56,schema_v3.n3,04.05.2016
+Average Class Connectivity,9.79,schema_v3.n3,04.05.2016
+Cohesion,1,schema_v3.n3,04.05.2016
+Number of Paths,38086,schema_v5.n3,01.11.2019
+Absolute Depth,118744,schema_v5.n3,01.11.2019
+Average Depth,3.12,schema_v5.n3,01.11.2019
+Maximal Depth,8,schema_v5.n3,01.11.2019
+Ontology Tangledness,27.61,schema_v5.n3,01.11.2019
+Degree Variance,289.93,schema_v5.n3,01.11.2019
+Number of Entities,1752,schema_v5.n3,01.11.2019
+Number of Properties,15,schema_v5.n3,01.11.2019
+Number of Classes,635,schema_v5.n3,01.11.2019
+Number of Instances,1615,schema_v5.n3,01.11.2019
+Number of Object Properties,12,schema_v5.n3,01.11.2019
+Depth of Inheritance Tree,5,schema_v5.n3,01.11.2019
+Property Class Ratio,0,schema_v5.n3,01.11.2019
+Class Property Ratio,0,schema_v5.n3,01.11.2019
+Inheritance Richness,1.02,schema_v5.n3,01.11.2019
+Attribute Richness,0,schema_v5.n3,01.11.2019
+Average Population,2.54,schema_v5.n3,01.11.2019
+Average Class Connectivity,9.53,schema_v5.n3,01.11.2019
+Cohesion,1,schema_v5.n3,01.11.2019
+Number of Paths,38086,schema_v7.n3,10.03.2020
+Absolute Depth,118744,schema_v7.n3,10.03.2020
+Average Depth,3.12,schema_v7.n3,10.03.2020
+Maximal Depth,8,schema_v7.n3,10.03.2020
+Ontology Tangledness,27.61,schema_v7.n3,10.03.2020
+Degree Variance,289.93,schema_v7.n3,10.03.2020
+Number of Entities,1752,schema_v7.n3,10.03.2020
+Number of Properties,15,schema_v7.n3,10.03.2020
+Number of Classes,635,schema_v7.n3,10.03.2020
+Number of Instances,1615,schema_v7.n3,10.03.2020
+Number of Object Properties,12,schema_v7.n3,10.03.2020
+Depth of Inheritance Tree,5,schema_v7.n3,10.03.2020
+Property Class Ratio,0,schema_v7.n3,10.03.2020
+Class Property Ratio,0,schema_v7.n3,10.03.2020
+Inheritance Richness,1.02,schema_v7.n3,10.03.2020
+Attribute Richness,0,schema_v7.n3,10.03.2020
+Average Population,2.54,schema_v7.n3,10.03.2020
+Average Class Connectivity,9.53,schema_v7.n3,10.03.2020
+Cohesion,1,schema_v7.n3,10.03.2020
+Number of Paths,48373,schema_2017-08-14.n3,14.08.2017
+Absolute Depth,175094,schema_2017-08-14.n3,14.08.2017
+Average Depth,3.62,schema_2017-08-14.n3,14.08.2017
+Maximal Depth,9,schema_2017-08-14.n3,14.08.2017
+Ontology Tangledness,38.5,schema_2017-08-14.n3,14.08.2017
+Degree Variance,285.35,schema_2017-08-14.n3,14.08.2017
+Number of Entities,1655,schema_2017-08-14.n3,14.08.2017
+Number of Properties,15,schema_2017-08-14.n3,14.08.2017
+Number of Classes,616,schema_2017-08-14.n3,14.08.2017
+Number of Instances,1588,schema_2017-08-14.n3,14.08.2017
+Number of Object Properties,12,schema_2017-08-14.n3,14.08.2017
+Depth of Inheritance Tree,5,schema_2017-08-14.n3,14.08.2017
+Property Class Ratio,0,schema_2017-08-14.n3,14.08.2017
+Class Property Ratio,0,schema_2017-08-14.n3,14.08.2017
+Inheritance Richness,1,schema_2017-08-14.n3,14.08.2017
+Attribute Richness,0,schema_2017-08-14.n3,14.08.2017
+Average Population,2.58,schema_2017-08-14.n3,14.08.2017
+Average Class Connectivity,10.2,schema_2017-08-14.n3,14.08.2017
+Cohesion,1,schema_2017-08-14.n3,14.08.2017
+

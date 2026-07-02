@@ -1,0 +1,14 @@
+﻿Metric,Value,Source,Run At
+Number of Paths,3137154,vienna-dbpedia-2015-04.ttl,01.07.2026 11:38:01
+Absolute Depth,6282542,vienna-dbpedia-2015-04.ttl,01.07.2026 11:38:01
+Average Depth,2,vienna-dbpedia-2015-04.ttl,01.07.2026 11:38:01
+Maximum Depth,3,vienna-dbpedia-2015-04.ttl,01.07.2026 11:38:01
+Degree Variance,16363.64,vienna-dbpedia-2015-04.ttl,01.07.2026 11:38:03
+Number of Entities,4326,vienna-dbpedia-2015-04.ttl,01.07.2026 11:38:04
+Number of Properties,388,vienna-dbpedia-2015-04.ttl,01.07.2026 11:38:04
+Number of Classes,46,vienna-dbpedia-2015-04.ttl,01.07.2026 11:38:04
+Number of Instances,1,vienna-dbpedia-2015-04.ttl,01.07.2026 11:38:04
+Number of Object Properties,186,vienna-dbpedia-2015-04.ttl,01.07.2026 11:38:04
+Average Population,0.02,vienna-dbpedia-2015-04.ttl,01.07.2026 11:38:05
+Average Class Connectivity,0,vienna-dbpedia-2015-04.ttl,01.07.2026 11:38:05
+Cohesion,1,vienna-dbpedia-2015-04.ttl,01.07.2026 11:38:06
